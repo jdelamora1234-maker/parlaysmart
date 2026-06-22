@@ -105,24 +105,7 @@ def fetch_today_matches(date_str):
     if cached:
         return cached
 
-    # 1. API-Football primero (rapido, sin limite de velocidad)
-    try:
-        fixtures = get_fixtures_for_mx_date(date_str)
-        if fixtures:
-            leagues = fixtures_to_matches(fixtures)
-            total = sum(len(l["matches"]) for l in leagues)
-            if total > 0:
-                data = {"leagues": leagues, "total": total, "source": "api-football"}
-                for league in leagues:
-                    for m in league["matches"]:
-                        if not m.get("id"):
-                            m["id"] = f"{league.get('league_name','')}_{m.get('team_home','')}_{m.get('team_away','')}".lower().replace(" ","_")
-                _cache_set(ck, data)
-                return data
-    except Exception:
-        pass
-
-    # 2. Gemini como fallback cuando la API no tiene datos
+    # 1. Gemini primero (datos actuales: Mundial 2026, temporada en curso)
     try:
         prompt = build_today_matches_prompt(date_str)
         raw_text = _call_gemini(prompt, max_tokens=4000)
@@ -145,7 +128,24 @@ def fetch_today_matches(date_str):
     except Exception:
         pass
 
-    raise ValueError("No se pudieron obtener los partidos")
+    # 2. API-Football como fallback (solo temporadas 2022-2024, pero funciona sin cupo)
+    try:
+        fixtures = get_fixtures_for_mx_date(date_str)
+        if fixtures:
+            leagues = fixtures_to_matches(fixtures)
+            total = sum(len(l["matches"]) for l in leagues)
+            if total > 0:
+                data = {"leagues": leagues, "total": total, "source": "api-football"}
+                for league in leagues:
+                    for m in league["matches"]:
+                        if not m.get("id"):
+                            m["id"] = f"{league.get('league_name','')}_{m.get('team_home','')}_{m.get('team_away','')}".lower().replace(" ","_")
+                _cache_set(ck, data)
+                return data
+    except Exception:
+        pass
+
+    raise ValueError("El servicio de IA esta temporalmente sin cupo. Intenta despues de las 2 AM hora Mexico.")
 
 
 def analyze_multi_matches(matches_list, date_str):
