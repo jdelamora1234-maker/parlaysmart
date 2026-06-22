@@ -5,6 +5,14 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import os, traceback
 
+def _friendly_error(e):
+    s = str(e)
+    if "429" in s or "RESOURCE_EXHAUSTED" in s:
+        return "El servicio de IA esta temporalmente sin cupo. Intenta de nuevo despues de las 2 AM hora Mexico.", 503
+    if "quota" in s.lower():
+        return "Limite de uso alcanzado. Intenta mas tarde.", 503
+    return s, 500
+
 # Cargar .env si existe
 _env_file = os.path.join(os.path.dirname(__file__), '.env')
 if os.path.exists(_env_file):
@@ -115,8 +123,9 @@ def today_matches():
         result = fetch_today_matches(date_str)
         return jsonify(result)
     except Exception as e:
+        msg, code = _friendly_error(e)
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": msg}), code
 
 
 @app.route("/multi-analyze", methods=["POST"])
@@ -133,8 +142,9 @@ def multi_analyze():
         result = analyze_multi_matches(matches, date_str)
         return jsonify(result)
     except Exception as e:
+        msg, code = _friendly_error(e)
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": msg}), code
 
 
 @app.route("/analyze", methods=["POST"])
@@ -159,8 +169,9 @@ def analyze():
         return jsonify(result)
 
     except Exception as e:
+        msg, code = _friendly_error(e)
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": msg}), code
 
 
 @app.route("/predict-tournament", methods=["POST"])
@@ -176,8 +187,9 @@ def predict_tournament():
         result = do_predict(tournament)
         return jsonify(result)
     except Exception as e:
+        msg, code = _friendly_error(e)
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": msg}), code
 
 
 if __name__ == "__main__":

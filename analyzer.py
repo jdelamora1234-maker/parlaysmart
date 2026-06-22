@@ -105,30 +105,47 @@ def fetch_today_matches(date_str):
     if cached:
         return cached
 
-    # Gemini + Google Search como fuente principal del horario
-    # (API-Football free no cubre el calendario completo del Mundial 2026)
-    prompt = build_today_matches_prompt(date_str)
-    raw_text = _call_gemini(prompt, max_tokens=4000)
+    # 1. API-Football primero (rapido, sin limite de velocidad)
+    try:
+        fixtures = get_fixtures_for_mx_date(date_str)
+        if fixtures:
+            leagues = fixtures_to_matches(fixtures)
+            total = sum(len(l["matches"]) for l in leagues)
+            if total > 0:
+                data = {"leagues": leagues, "total": total, "source": "api-football"}
+                for league in leagues:
+                    for m in league["matches"]:
+                        if not m.get("id"):
+                            m["id"] = f"{league.get('league_name','')}_{m.get('team_home','')}_{m.get('team_away','')}".lower().replace(" ","_")
+                _cache_set(ck, data)
+                return data
+    except Exception:
+        pass
 
-    data = _extract_json(raw_text)
-    if not data:
-        raise ValueError("No se pudieron obtener los partidos de hoy")
+    # 2. Gemini como fallback cuando la API no tiene datos
+    try:
+        prompt = build_today_matches_prompt(date_str)
+        raw_text = _call_gemini(prompt, max_tokens=4000)
+        data = _extract_json(raw_text)
+        if data:
+            total = 0
+            for league in data.get("leagues", []):
+                for m in league.get("matches", []):
+                    if not m.get("id"):
+                        m["id"] = (league.get("league_name","") + "_" + m.get("team_home","") + "_" + m.get("team_away","")).lower().replace(" ","_")
+                    m["league_name"] = league.get("league_name","")
+                    m["league_flag"] = league.get("league_flag","")
+                    if not m.get("time") and m.get("time_mx"):
+                        m["time"] = m["time_mx"]
+                    total += 1
+            data["total"] = total
+            data["source"] = "gemini"
+            _cache_set(ck, data)
+            return data
+    except Exception:
+        pass
 
-    total = 0
-    for league in data.get("leagues", []):
-        for m in league.get("matches", []):
-            if not m.get("id"):
-                m["id"] = (league.get("league_name","") + "_" + m.get("team_home","") + "_" + m.get("team_away","")).lower().replace(" ","_")
-            m["league_name"] = league.get("league_name","")
-            m["league_flag"] = league.get("league_flag","")
-            # Normalizar campo de hora (Gemini puede devolver time_mx o time)
-            if not m.get("time") and m.get("time_mx"):
-                m["time"] = m["time_mx"]
-            total += 1
-    data["total"] = total
-    data["source"] = "gemini"
-    _cache_set(ck, data)
-    return data
+    raise ValueError("No se pudieron obtener los partidos")
 
 
 def analyze_multi_matches(matches_list, date_str):
