@@ -44,8 +44,10 @@ function doLogin() {
       if (res.ok) {
         hideLogin();
         if (err) err.textContent = '';
+        var adminBtn = document.getElementById('adminBtn');
+        if (adminBtn) adminBtn.style.display = res.d.is_admin ? 'inline-flex' : 'none';
       } else {
-        if (err) err.textContent = res.d.error || 'Codigo incorrecto';
+        if (err) err.textContent = res.d.error || 'Codigo incorrecto o expirado';
         if (inp) inp.value = '';
       }
       if (btn) btn.textContent = 'Entrar';
@@ -2732,3 +2734,71 @@ function renderTournamentResult(data) {
 
   el.innerHTML = html;
 }
+
+// ========================================================
+//  PANEL DE ADMIN - GESTION DE PINS
+// ========================================================
+
+function openAdminPanel() {
+  document.getElementById('adminPanel').style.display = 'flex';
+  adminLoadPins();
+}
+
+function closeAdminPanel() {
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('adminNewPin').style.display = 'none';
+}
+
+function adminLoadPins() {
+  var list = document.getElementById('adminPinList');
+  list.innerHTML = '<div class="admin-loading">Cargando...</div>';
+  fetch('/admin/pins', { credentials: 'include' })
+    .then(function(r) { return r.json(); })
+    .then(function(pins) {
+      if (!pins.length) {
+        list.innerHTML = '<div class="admin-empty">No hay PINs activos</div>';
+        return;
+      }
+      list.innerHTML = pins.map(function(p) {
+        return '<div class="admin-pin-row">' +
+          '<span class="admin-pin-num">' + p.code + '</span>' +
+          '<span class="admin-pin-dur">' + p.label + '</span>' +
+          '<span class="admin-pin-rem">Expira en ' + p.remaining + '</span>' +
+          '<button class="admin-del-btn" onclick="adminDeletePin(\'' + p.code + '\')">&#128465;</button>' +
+        '</div>';
+      }).join('');
+    })
+    .catch(function() {
+      list.innerHTML = '<div class="admin-empty">Error al cargar</div>';
+    });
+}
+
+function adminCreatePin(days) {
+  fetch('/admin/pins', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ days: days })
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(pin) {
+      document.getElementById('adminPinCode').textContent = pin.code;
+      document.getElementById('adminNewPin').style.display = 'flex';
+      adminLoadPins();
+    });
+}
+
+function adminCopyPin() {
+  var code = document.getElementById('adminPinCode').textContent;
+  navigator.clipboard.writeText(code).then(function() {
+    var btn = document.querySelector('.admin-copy-btn');
+    btn.textContent = 'Copiado!';
+    setTimeout(function() { btn.textContent = 'Copiar'; }, 2000);
+  });
+}
+
+function adminDeletePin(code) {
+  fetch('/admin/pins/' + code, { method: 'DELETE', credentials: 'include' })
+    .then(function() { adminLoadPins(); });
+}
+

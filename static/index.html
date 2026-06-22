@@ -44,7 +44,40 @@
   <button class="snav" onclick="setSport('MMA / UFC')">&#128080; MMA / UFC</button>
   <button class="snav" onclick="setSport('Hockey')">&#127944; Hockey</button>
   <button class="snav snav-trophy" onclick="openTournamentView()">&#127942; Torneo</button>
+  <button class="snav snav-admin" id="adminBtn" onclick="openAdminPanel()" style="display:none">&#128273; Admin</button>
 </nav>
+
+<!-- Panel Admin -->
+<div id="adminPanel" class="admin-panel" style="display:none">
+  <div class="admin-overlay" onclick="closeAdminPanel()"></div>
+  <div class="admin-box">
+    <div class="admin-header">
+      <span>Panel de Accesos</span>
+      <button class="admin-close" onclick="closeAdminPanel()">&#10005;</button>
+    </div>
+    <div class="admin-body">
+      <div class="admin-gen">
+        <p class="admin-label">Generar PIN nuevo:</p>
+        <div class="admin-btns">
+          <button class="admin-gen-btn" onclick="adminCreatePin(1)">1 dia</button>
+          <button class="admin-gen-btn" onclick="adminCreatePin(3)">3 dias</button>
+          <button class="admin-gen-btn" onclick="adminCreatePin(7)">1 semana</button>
+        </div>
+      </div>
+      <div id="adminNewPin" class="admin-new-pin" style="display:none">
+        <span class="admin-pin-label">PIN generado:</span>
+        <span id="adminPinCode" class="admin-pin-code"></span>
+        <button class="admin-copy-btn" onclick="adminCopyPin()">Copiar</button>
+      </div>
+      <div class="admin-list-wrap">
+        <p class="admin-label">PINs activos:</p>
+        <div id="adminPinList" class="admin-pin-list">
+          <div class="admin-loading">Cargando...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ==================== VIEWS ==================== -->
 

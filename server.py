@@ -50,11 +50,52 @@ def static_files(filename):
 
 @app.route("/login", methods=["POST"])
 def login():
+    from pins import validate_pin
     code = request.get_json(force=True).get("code", "").strip()
     if code.upper() == ACCESS_CODE.upper():
         session["auth"] = True
-        return jsonify({"ok": True})
-    return jsonify({"error": "Codigo incorrecto"}), 401
+        session["is_admin"] = True
+        return jsonify({"ok": True, "is_admin": True})
+    if validate_pin(code):
+        session["auth"] = True
+        session["is_admin"] = False
+        return jsonify({"ok": True, "is_admin": False})
+    return jsonify({"error": "Codigo incorrecto o expirado"}), 401
+
+
+def require_admin(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get("auth") or not session.get("is_admin"):
+            return jsonify({"error": "No autorizado"}), 403
+        return f(*args, **kwargs)
+    return decorated
+
+
+@app.route("/admin/pins", methods=["GET"])
+@require_admin
+def admin_list_pins():
+    from pins import list_pins
+    return jsonify(list_pins())
+
+
+@app.route("/admin/pins", methods=["POST"])
+@require_admin
+def admin_create_pin():
+    from pins import create_pin
+    days = int(request.get_json(force=True).get("days", 1))
+    if days not in (1, 3, 7):
+        return jsonify({"error": "Duracion invalida"}), 400
+    pin = create_pin(days)
+    return jsonify(pin)
+
+
+@app.route("/admin/pins/<code>", methods=["DELETE"])
+@require_admin
+def admin_delete_pin(code):
+    from pins import delete_pin
+    delete_pin(code)
+    return jsonify({"ok": True})
 
 
 @app.route("/logout", methods=["POST"])
