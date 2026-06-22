@@ -16,6 +16,9 @@ if os.path.exists(_env_file):
 
 app = Flask(__name__, static_folder="static")
 app.secret_key = os.environ.get("SECRET_KEY", "parlaysmart-secret-2025")
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 CORS(app, supports_credentials=True)
 
 ACCESS_CODE = os.environ.get("ACCESS_CODE", "MAFE2025")
