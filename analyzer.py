@@ -1,11 +1,11 @@
 import os, json, re, hashlib, requests
 from datetime import date as dt_date
-import google.generativeai as genai
+from google import genai
 from models import poisson_probabilities, monte_carlo, combine_predictions, elo_expected, prob_to_odds
 from prompts import SYSTEM_PROMPT, build_analysis_prompt, build_today_matches_prompt, build_multi_analysis_prompt, build_single_parlay_prompt
 from football_api import get_context_for_match, get_fixtures_for_mx_date, fixtures_to_matches
 
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY")
 
 CACHE_DIR = os.path.join(os.path.dirname(__file__), "cache")
@@ -86,19 +86,19 @@ def _get_real_odds(team_a, team_b):
         return ""
 
 def _call_gemini(prompt, max_tokens=8000, retry=2):
-    """Llamada a Gemini con validación robusta."""
+    """Llamada a Gemini usando nuevo SDK google-genai."""
     full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
-    model = genai.GenerativeModel("models/gemini-2.5-flash")
+    client = genai.Client(api_key=GEMINI_API_KEY)
 
     for attempt in range(retry):
         try:
-            # Timeout más largo y configuración más simple
-            response = model.generate_content(
-                full_prompt,
-                generation_config=genai.types.GenerationConfig(
-                    max_output_tokens=min(max_tokens, 8000),
-                    temperature=0.5
-                )
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=full_prompt,
+                config={
+                    "max_output_tokens": min(max_tokens, 8000),
+                    "temperature": 0.5,
+                }
             )
 
             if not response or not response.text:
@@ -121,11 +121,10 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
             print(f"[GEMINI ERROR {attempt+1}] {error_msg}")
 
             if attempt == retry - 1:
-                # Último intento falló
-                raise ValueError(f"Gemini no respondió correctamente: {error_msg}")
+                raise ValueError(f"Gemini falló: {error_msg}")
 
             import time
-            time.sleep(3)  # Esperar 3 segundos antes de reintentar
+            time.sleep(3)
 
     raise ValueError("Gemini falló en todos los intentos")
 
