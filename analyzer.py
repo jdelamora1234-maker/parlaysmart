@@ -29,7 +29,7 @@ def _cache_set(key, data):
         json.dump({"date": str(dt_date.today()), "data": data}, f)
 
 def _call_gemini(prompt, max_tokens=6000):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent"
     headers = {"Content-Type": "application/json"}
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
