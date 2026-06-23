@@ -2,7 +2,7 @@ import os, json, re, hashlib, requests
 from datetime import date as dt_date
 import google.generativeai as genai
 from models import poisson_probabilities, monte_carlo, combine_predictions, elo_expected, prob_to_odds
-from prompts import SYSTEM_PROMPT, build_analysis_prompt, build_today_matches_prompt, build_multi_analysis_prompt
+from prompts import SYSTEM_PROMPT, build_analysis_prompt, build_today_matches_prompt, build_multi_analysis_prompt, build_single_parlay_prompt
 from football_api import get_context_for_match, get_fixtures_for_mx_date, fixtures_to_matches
 
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
@@ -123,8 +123,7 @@ def analyze_match(team_a, team_b, sport, competition, date_str, context="", quer
         raise ValueError(f"No se pudo extraer JSON del analisis. Respuesta: {raw_text[:500]}")
 
     # GENERAR 4 PARLAYS SEPARADOS (uno para cada nivel de riesgo)
-    from prompts import build_single_parlay_prompt
-    analysis_json = json.dumps(data, ensure_ascii=False)[:3000]
+    analysis_json = json.dumps(data, ensure_ascii=False)[:5000]
 
     parlays = {}
     parlay_types = ["ultra_conservador", "conservador", "balanceado", "riesgoso"]
@@ -137,8 +136,8 @@ def analyze_match(team_a, team_b, sport, competition, date_str, context="", quer
 
             if parlay_data and "parlay" in parlay_data:
                 parlays[parlay_type] = parlay_data["parlay"]
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Error generando {parlay_type}: {str(e)}")
 
     data["parlays"] = parlays
 
@@ -216,13 +215,15 @@ def analyze_multi_matches(matches_list, date_str):
     if not data:
         raise ValueError("No se pudo generar el analisis multi-partido")
 
-    for parlay in data.get("parlays", []):
-        sels = parlay.get("selections", [])
-        if sels:
-            combined = 1.0
-            for s in sels:
-                combined *= float(s.get("odds", 1.50))
-            parlay["combined_odds"] = round(combined, 2)
+    parlays_dict = data.get("parlays", {})
+    if isinstance(parlays_dict, dict):
+        for key, parlay in parlays_dict.items():
+            sels = parlay.get("selections", [])
+            if sels:
+                combined = 1.0
+                for s in sels:
+                    combined *= float(s.get("odds", 1.50))
+                parlay["combined_odds"] = round(combined, 2)
 
     for m in data.get("matches", []):
         lh = float(m.get("lambda_home", 1.4))
