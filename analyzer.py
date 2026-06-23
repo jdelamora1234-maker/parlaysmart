@@ -4,7 +4,14 @@ from models import poisson_probabilities, monte_carlo, combine_predictions, elo_
 from prompts import SYSTEM_PROMPT, build_analysis_prompt, build_today_matches_prompt, build_multi_analysis_prompt, build_single_parlay_prompt
 from football_api import get_context_for_match, get_fixtures_for_mx_date, fixtures_to_matches
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+try:
+    import google.generativeai as genai
+    GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+    if GEMINI_API_KEY:
+        genai.configure(api_key=GEMINI_API_KEY)
+except:
+    GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY")
 
 CACHE_DIR = os.path.join(os.path.dirname(__file__), "cache")
@@ -84,13 +91,34 @@ def _get_real_odds(team_a, team_b):
     except Exception:
         return ""
 
-def _call_groq(prompt, max_tokens=8000, retry=2):
-    """Llamada a Groq Llama 3 (gratis, funciona 100%)."""
+def _call_gemini(prompt, max_tokens=8000, retry=2):
+    """Intenta Gemini primero, fallback a Groq."""
     import time
 
+    # INTENTO 1: Google Generative AI SDK (mejor chance con Google AI Studio)
+    if GEMINI_API_KEY:
+        try:
+            model = genai.GenerativeModel("gemini-pro")
+            response = model.generate_content(
+                f"{SYSTEM_PROMPT}\n\n{prompt}",
+                generation_config=genai.types.GenerationConfig(
+                    max_output_tokens=min(max_tokens, 8000),
+                    temperature=0.3,
+                )
+            )
+
+            text = response.text.strip()
+
+            if text and text.startswith('{'):
+                return text
+
+        except Exception as e:
+            print(f"[Gemini SDK] {str(e)[:80]}")
+
+    # FALLBACK: Groq (confiable, gratis)
     groq_key = os.environ.get("GROQ_API_KEY")
     if not groq_key:
-        raise ValueError("GROQ_API_KEY no está en .env")
+        raise ValueError("Ni Gemini ni Groq están configurados")
 
     url = "https://api.groq.com/openai/v1/chat/completions"
 
@@ -115,34 +143,20 @@ def _call_groq(prompt, max_tokens=8000, retry=2):
             resp = requests.post(url, json=payload, headers=headers, timeout=45)
 
             if resp.status_code != 200:
-                error_data = resp.json() if resp.headers.get('content-type') == 'application/json' else {}
-                error_msg = error_data.get('error', {}).get('message', resp.text[:150])
-                raise ValueError(f"HTTP {resp.status_code}: {error_msg}")
+                raise ValueError(f"HTTP {resp.status_code}")
 
             data = resp.json()
             text = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
 
-            if not text:
-                raise ValueError("Respuesta vacía")
-
-            if text.startswith('<') or text.startswith('!'):
-                raise ValueError(f"HTML response")
-
-            if not text.startswith('{'):
-                raise ValueError(f"No JSON")
-
-            return text
+            if text and text.startswith('{'):
+                return text
 
         except Exception as e:
             if attempt == retry - 1:
-                raise ValueError(f"Groq error: {str(e)[:100]}")
+                raise ValueError(f"Falló: {str(e)[:80]}")
             time.sleep(2)
 
-    raise ValueError("Groq falló")
-
-def _call_gemini(prompt, max_tokens=8000, retry=2):
-    """Alias a Groq para compatibilidad."""
-    return _call_groq(prompt, max_tokens, retry)
+    raise ValueError("Sin respuesta")
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
     ck = _cache_key(query or f"{team_a}_{team_b}", date_str)
