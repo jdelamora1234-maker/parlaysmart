@@ -120,13 +120,26 @@ def test_gemini():
     try:
         key = os.environ.get("GEMINI_API_KEY")
         if not key:
-            return jsonify({"error": "GEMINI_API_KEY no configurada", "status": "ERROR"}), 500
+            return jsonify({"error": "GEMINI_API_KEY NO CONFIGURADA EN RENDER", "status": "ERROR"}), 500
 
         from analyzer import _call_gemini
         result = _call_gemini("Responde con JSON: {'test': 'ok'}", max_tokens=100)
-        return jsonify({"status": "OK", "result": result[:200], "api_key_present": True})
+        return jsonify({"status": "OK", "result": result[:200], "api_key_len": len(key)})
     except Exception as e:
-        return jsonify({"error": str(e), "status": "ERROR"}), 500
+        return jsonify({"error": str(e), "status": "ERROR", "api_key_exists": bool(os.environ.get("GEMINI_API_KEY"))}), 500
+
+
+@app.route("/debug-env", methods=["GET"])
+def debug_env():
+    """Debug endpoint - muestra variables de entorno"""
+    key = os.environ.get("GEMINI_API_KEY", "NO EXISTE")
+    return jsonify({
+        "GEMINI_API_KEY_exists": key != "NO EXISTE",
+        "GEMINI_API_KEY_length": len(key) if key != "NO EXISTE" else 0,
+        "GEMINI_API_KEY_start": key[:20] if key != "NO EXISTE" else "N/A",
+        "ACCESS_CODE": os.environ.get("ACCESS_CODE", "NO EXISTE"),
+        "all_env_keys": list(os.environ.keys())[:10]
+    })
 
 
 @app.route("/today-matches", methods=["GET"])
