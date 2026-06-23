@@ -351,18 +351,35 @@ Si es una liga regular, omite bracket y group_predictions y enfoca en top_conten
 
 
 def _extract_json(text):
+    """Extrae JSON robusto de respuestas de Gemini."""
     text = text.strip()
+
+    # Intento 1: JSON directo
     try:
         return json.loads(text)
     except Exception:
         pass
-    md_match = re.search(r'```(?:json)?\s*(\{[\s\S]+\})\s*```', text)
+
+    # Intento 2: JSON en markdown (```json...```)
+    md_match = re.search(r'```(?:json)?\s*(\{[\s\S]*?\})\s*```', text, re.DOTALL)
     if md_match:
         try:
             return json.loads(md_match.group(1))
         except Exception:
             pass
+
+    # Intento 3: Encontrar primer { y último }
     start = text.find('{')
+    end = text.rfind('}')
+
+    if start != -1 and end != -1 and end > start:
+        candidate = text[start:end+1]
+        try:
+            return json.loads(candidate)
+        except Exception:
+            pass
+
+    # Intento 4: Búsqueda manual de JSON bien formado
     if start != -1:
         depth = 0
         in_str = False
@@ -389,8 +406,10 @@ def _extract_json(text):
                         return json.loads(candidate)
                     except Exception:
                         break
-        candidate = text[start:]
-        candidate = re.sub(r',\s*$', '', candidate)
+
+        # Intento 5: Autocorrección de JSON incompleto
+        candidate = text[start:end+1] if end != -1 else text[start:]
+        candidate = re.sub(r',\s*[}\]]', lambda m: m.group(0)[1:], candidate)  # Remover comas finales
         opens_b = candidate.count('{') - candidate.count('}')
         opens_a = candidate.count('[') - candidate.count(']')
         candidate += ']' * max(0, opens_a) + '}' * max(0, opens_b)
@@ -398,6 +417,7 @@ def _extract_json(text):
             return json.loads(candidate)
         except Exception:
             pass
+
     return None
 
 
