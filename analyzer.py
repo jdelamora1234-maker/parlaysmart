@@ -125,8 +125,10 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
                 raise ValueError("Respuesta vacía")
 
         except Exception as e:
+            error_msg = str(e)[:200]
+            print(f"[Gemini attempt {attempt+1}/{retry}] ERROR: {error_msg}")
             if attempt == retry - 1:
-                raise ValueError(f"Gemini error: {str(e)[:100]}")
+                raise ValueError(f"Gemini error: {error_msg}")
             time.sleep(2)
 
     raise ValueError("Gemini falló")
