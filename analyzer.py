@@ -6,6 +6,7 @@ from prompts import SYSTEM_PROMPT, build_analysis_prompt, build_today_matches_pr
 from football_api import get_context_for_match, get_fixtures_for_mx_date, fixtures_to_matches
 
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+ODDS_API_KEY = os.environ.get("ODDS_API_KEY")
 
 CACHE_DIR = os.path.join(os.path.dirname(__file__), "cache")
 os.makedirs(CACHE_DIR, exist_ok=True)
@@ -29,6 +30,61 @@ def _cache_set(key, data):
     with open(path, "w") as f:
         json.dump({"date": str(dt_date.today()), "data": data}, f)
 
+def _get_real_odds(team_a, team_b):
+    """Obtiene momios reales de The Odds API para un partido."""
+    try:
+        if not ODDS_API_KEY:
+            return ""
+
+        # Buscar el partido en The Odds API
+        url = "https://api.the-odds-api.com/v4/sports/soccer_international/events"
+        params = {
+            "apiKey": ODDS_API_KEY,
+            "limit": 500
+        }
+        r = requests.get(url, params=params, timeout=10)
+        if r.status_code != 200:
+            return ""
+
+        data = r.json()
+        events = data.get("data", [])
+
+        # Buscar partido con nombres similares
+        a_lower = team_a.lower().strip()
+        b_lower = team_b.lower().strip()
+
+        for event in events:
+            home = event.get("home_team", "").lower()
+            away = event.get("away_team", "").lower()
+
+            # Búsqueda flexible de nombres
+            if (a_lower in home or home in a_lower or a_lower in away or away in a_lower) and \
+               (b_lower in home or home in b_lower or b_lower in away or away in b_lower):
+
+                # Obtener momios del partido
+                bookmakers = event.get("bookmakers", [])
+                odds_info = f"\n=== MOMIOS REALES DE THE ODDS API ===\n"
+                odds_info += f"Partido: {event.get('home_team')} vs {event.get('away_team')}\n"
+                odds_info += f"Hora: {event.get('commence_time', 'N/A')}\n\n"
+
+                for bm in bookmakers[:3]:  # Top 3 casas
+                    bm_name = bm.get("title", "")
+                    markets = bm.get("markets", [])
+                    odds_info += f"{bm_name}:\n"
+
+                    for market in markets:
+                        if market.get("key") == "h2h":
+                            outcomes = market.get("outcomes", [])
+                            for outcome in outcomes:
+                                odds_info += f"  {outcome.get('name')}: {outcome.get('price')}\n"
+                    odds_info += "\n"
+
+                return odds_info
+
+        return ""
+    except Exception:
+        return ""
+
 def _call_gemini(prompt, max_tokens=12000):
     full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
     model = genai.GenerativeModel("models/gemini-2.5-flash")
@@ -50,7 +106,9 @@ def analyze_match(team_a, team_b, sport, competition, date_str, context="", quer
         except Exception:
             pass
 
-    full_context = (real_context + "\n\n" + context).strip() if real_context else context
+    # Agregar momios reales de The Odds API
+    real_odds = _get_real_odds(team_a, team_b)
+    full_context = "\n\n".join(filter(None, [real_context, real_odds, context]))
     prompt = build_analysis_prompt(team_a, team_b, sport, competition, date_str, full_context, query=query)
     raw_text = _call_gemini(prompt, max_tokens=6000)
 
