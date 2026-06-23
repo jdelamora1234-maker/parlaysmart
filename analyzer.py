@@ -110,7 +110,7 @@ def analyze_match(team_a, team_b, sport, competition, date_str, context="", quer
     real_odds = _get_real_odds(team_a, team_b)
     full_context = "\n\n".join(filter(None, [real_context, real_odds, context]))
     prompt = build_analysis_prompt(team_a, team_b, sport, competition, date_str, full_context, query=query)
-    raw_text = _call_gemini(prompt, max_tokens=6000)
+    raw_text = _call_gemini(prompt, max_tokens=16000)
 
     data = _extract_json(raw_text)
     if not data:
