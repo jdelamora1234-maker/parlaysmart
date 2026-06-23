@@ -60,6 +60,14 @@ Aplica las 30 capas de micro-analisis del protocolo."""
 
     return f"""{header}
 
+PRIORITARIO: DEVUELVE UN JSON CON ESTOS 4 PARLAYS:
+1. "ultra_conservador": 1 pick (odds ~1.65, prob ~75%, EV+)
+2. "conservador": 2 picks (odds ~3.0, prob ~55%, EV+)
+3. "balanceado": 3 picks (odds ~6.0, prob ~38%, EV+)
+4. "riesgoso": 4 picks (odds ~16.5, prob ~18%, EV+)
+
+TODOS los parlays deben tener selections completas con market, pick, odds, reason.
+
 BUSQUEDA WEB OBLIGATORIA:
 1. FBref, Sofascore, Understat, FotMob, Flashscore para estadisticas avanzadas (xG, xGA, PPDA, etc.)
 2. PlayDouit (playdoit.mx) - PRIORIDAD MAXIMA para momios actuales de TODOS los mercados
