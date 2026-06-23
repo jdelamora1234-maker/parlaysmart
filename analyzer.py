@@ -4,8 +4,8 @@ from models import poisson_probabilities, monte_carlo, combine_predictions, elo_
 from prompts import SYSTEM_PROMPT, build_analysis_prompt, build_today_matches_prompt, build_multi_analysis_prompt, build_single_parlay_prompt
 from football_api import get_context_for_match, get_fixtures_for_mx_date, fixtures_to_matches
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-ODDS_API_KEY = os.environ.get("ODDS_API_KEY")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
+ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "").strip()
 
 CACHE_DIR = os.path.join(os.path.dirname(__file__), "cache")
 os.makedirs(CACHE_DIR, exist_ok=True)
