@@ -92,71 +92,44 @@ def _get_real_odds(team_a, team_b):
         return ""
 
 def _call_gemini(prompt, max_tokens=8000, retry=2):
-    """Intenta Gemini primero, fallback a Groq."""
+    """Llamada a Gemini API usando Google Cloud REST API."""
     import time
 
-    # INTENTO 1: Google Generative AI SDK (mejor chance con Google AI Studio)
-    if GEMINI_API_KEY:
-        try:
-            model = genai.GenerativeModel("gemini-pro")
-            response = model.generate_content(
-                f"{SYSTEM_PROMPT}\n\n{prompt}",
-                generation_config=genai.types.GenerationConfig(
-                    max_output_tokens=min(max_tokens, 8000),
-                    temperature=0.3,
-                )
-            )
+    if not GEMINI_API_KEY:
+        raise ValueError("GEMINI_API_KEY no está configurada")
 
-            text = response.text.strip()
-
-            if text and text.startswith('{'):
-                return text
-
-        except Exception as e:
-            print(f"[Gemini SDK] {str(e)[:80]}")
-
-    # FALLBACK: Groq (confiable, gratis)
-    groq_key = os.environ.get("GROQ_API_KEY")
-    if not groq_key:
-        raise ValueError("Ni Gemini ni Groq están configurados")
-
-    url = "https://api.groq.com/openai/v1/chat/completions"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
 
     for attempt in range(retry):
         try:
             payload = {
-                "model": "llama-3-70b-8192",
-                "messages": [
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt}
-                ],
-                "max_tokens": min(max_tokens, 8000),
-                "temperature": 0.3,
-                "top_p": 0.9
+                "contents": [{"parts": [{"text": f"{SYSTEM_PROMPT}\n\n{prompt}"}]}],
+                "generationConfig": {
+                    "maxOutputTokens": min(max_tokens, 8000),
+                    "temperature": 0.3,
+                }
             }
 
-            headers = {
-                "Authorization": f"Bearer {groq_key}",
-                "Content-Type": "application/json"
-            }
-
-            resp = requests.post(url, json=payload, headers=headers, timeout=45)
+            resp = requests.post(url, json=payload, timeout=45)
 
             if resp.status_code != 200:
-                raise ValueError(f"HTTP {resp.status_code}")
+                raise ValueError(f"HTTP {resp.status_code}: {resp.text[:200]}")
 
             data = resp.json()
-            text = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+            text = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "").strip()
 
             if text and text.startswith('{'):
                 return text
 
+            if not text:
+                raise ValueError("Respuesta vacía")
+
         except Exception as e:
             if attempt == retry - 1:
-                raise ValueError(f"Falló: {str(e)[:80]}")
+                raise ValueError(f"Gemini error: {str(e)[:100]}")
             time.sleep(2)
 
-    raise ValueError("Sin respuesta")
+    raise ValueError("Gemini falló")
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
     ck = _cache_key(query or f"{team_a}_{team_b}", date_str)
