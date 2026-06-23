@@ -85,58 +85,60 @@ def _get_real_odds(team_a, team_b):
         return ""
 
 def _call_gemini(prompt, max_tokens=8000, retry=2):
-    """Llamada a Gemini API usando Google Cloud REST API."""
+    """Llamada a Groq API (reemplazó a Gemini)."""
     import time
 
-    if not GEMINI_API_KEY:
-        raise ValueError("GEMINI_API_KEY no está configurada")
+    groq_key = os.environ.get("GROQ_API_KEY", "").strip()
+    if not groq_key:
+        raise ValueError("GROQ_API_KEY no está configurada")
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+    url = "https://api.groq.com/openai/v1/chat/completions"
 
     for attempt in range(retry):
         try:
             payload = {
-                "contents": [{"parts": [{"text": f"{SYSTEM_PROMPT}\n\n{prompt}"}]}],
-                "generationConfig": {
-                    "maxOutputTokens": min(max_tokens, 8000),
-                    "temperature": 0.3,
-                }
+                "model": "mixtral-8x7b-32768",
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
+                "max_tokens": min(max_tokens, 8000),
+                "temperature": 0.3,
             }
 
-            resp = requests.post(url, json=payload, timeout=45)
+            headers = {
+                "Authorization": f"Bearer {groq_key}",
+                "Content-Type": "application/json"
+            }
+
+            resp = requests.post(url, json=payload, headers=headers, timeout=45)
 
             if resp.status_code != 200:
                 raise ValueError(f"HTTP {resp.status_code}: {resp.text[:300]}")
 
             data = resp.json()
 
-            # Validar estructura de respuesta
-            candidates = data.get("candidates", [])
-            if not candidates or len(candidates) == 0:
-                raise ValueError("No candidates en respuesta Gemini")
+            # Validar estructura de respuesta Groq
+            choices = data.get("choices", [])
+            if not choices or len(choices) == 0:
+                raise ValueError("No choices en respuesta Groq")
 
-            candidate = candidates[0]
-            content = candidate.get("content", {})
-            parts = content.get("parts", [])
-
-            if not parts or len(parts) == 0:
-                raise ValueError("No parts en respuesta Gemini")
-
-            text = parts[0].get("text", "").strip()
+            message = choices[0].get("message", {})
+            text = message.get("content", "").strip()
 
             if not text:
-                raise ValueError("Texto vacío en respuesta Gemini")
+                raise ValueError("Texto vacío en respuesta Groq")
 
             return text
 
         except Exception as e:
             error_msg = str(e)[:200]
-            print(f"[Gemini attempt {attempt+1}/{retry}] ERROR: {error_msg}")
+            print(f"[Groq attempt {attempt+1}/{retry}] ERROR: {error_msg}")
             if attempt == retry - 1:
-                raise ValueError(f"Gemini error: {error_msg}")
+                raise ValueError(f"Groq error: {error_msg}")
             time.sleep(2)
 
-    raise ValueError("Gemini falló después de reintentos")
+    raise ValueError("Groq falló después de reintentos")
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
     ck = _cache_key(query or f"{team_a}_{team_b}", date_str)
