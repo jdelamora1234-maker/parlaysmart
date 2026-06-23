@@ -87,8 +87,17 @@ def _get_real_odds(team_a, team_b):
 
 def _call_gemini(prompt, max_tokens=12000):
     full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
-    model = genai.GenerativeModel("models/gemini-2.5-flash")
-    response = model.generate_content(full_prompt, generation_config=genai.types.GenerationConfig(max_output_tokens=max_tokens))
+    model = genai.GenerativeModel(
+        "models/gemini-2.5-flash",
+        tools=[genai.Tool(google_search=genai.GoogleSearch())]
+    )
+    response = model.generate_content(
+        full_prompt,
+        generation_config=genai.types.GenerationConfig(
+            max_output_tokens=max_tokens,
+            temperature=0.7
+        )
+    )
     return response.text
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
