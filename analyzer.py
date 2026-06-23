@@ -97,7 +97,7 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
     for attempt in range(retry):
         try:
             payload = {
-                "model": "mixtral-8x7b-32768",
+                "model": "llama-3.1-70b-versatile",
                 "messages": [
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
