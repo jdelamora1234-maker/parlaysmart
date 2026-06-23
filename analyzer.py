@@ -31,21 +31,22 @@ def _cache_set(key, data):
         json.dump({"date": str(dt_date.today()), "data": data}, f)
 
 def _call_gemini(prompt, max_tokens=6000):
-    response = client.models.generate_content(
-        model="gemini-1.5-pro",
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            tools=[types.Tool(google_search=types.GoogleSearch())],
-            max_output_tokens=max_tokens,
-            system_instruction=SYSTEM_PROMPT,
+    try:
+        response = client.models.generate_content(
+            model="gemini-pro",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                max_output_tokens=max_tokens,
+                system_instruction=SYSTEM_PROMPT,
+            )
         )
-    )
-    # Extraer texto de la respuesta
-    raw = ""
-    for part in response.candidates[0].content.parts:
-        if hasattr(part, "text") and part.text:
-            raw += part.text
-    return raw
+        raw = ""
+        for part in response.candidates[0].content.parts:
+            if hasattr(part, "text") and part.text:
+                raw += part.text
+        return raw
+    except Exception as e:
+        raise ValueError(str(e))
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
     ck = _cache_key(query or f"{team_a}_{team_b}", date_str)
