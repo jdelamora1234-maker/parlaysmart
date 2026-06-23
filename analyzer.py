@@ -1,6 +1,5 @@
 import os, json, re, hashlib, requests
 from datetime import date as dt_date
-from google import genai
 from models import poisson_probabilities, monte_carlo, combine_predictions, elo_expected, prob_to_odds
 from prompts import SYSTEM_PROMPT, build_analysis_prompt, build_today_matches_prompt, build_multi_analysis_prompt, build_single_parlay_prompt
 from football_api import get_context_for_match, get_fixtures_for_mx_date, fixtures_to_matches
@@ -86,47 +85,57 @@ def _get_real_odds(team_a, team_b):
         return ""
 
 def _call_gemini(prompt, max_tokens=8000, retry=2):
-    """Llamada a Gemini usando nuevo SDK google-genai."""
+    """Llamada a Gemini vía API REST (sin SDKs problemáticos)."""
     full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
-    client = genai.Client(api_key=GEMINI_API_KEY)
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
 
     for attempt in range(retry):
         try:
-            response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=full_prompt,
-                config={
-                    "max_output_tokens": min(max_tokens, 8000),
-                    "temperature": 0.5,
+            payload = {
+                "contents": [{"parts": [{"text": full_prompt}]}],
+                "generationConfig": {
+                    "maxOutputTokens": min(max_tokens, 8000),
+                    "temperature": 0.5
                 }
-            )
+            }
 
-            if not response or not response.text:
-                raise ValueError("Gemini devolvió respuesta vacía")
+            resp = requests.post(url, json=payload, timeout=30)
 
-            text = response.text.strip()
+            if resp.status_code != 200:
+                raise ValueError(f"HTTP {resp.status_code}: {resp.text[:200]}")
+
+            data = resp.json()
+            candidates = data.get("candidates", [])
+
+            if not candidates:
+                raise ValueError("No candidates en respuesta")
+
+            text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "").strip()
+
+            if not text:
+                raise ValueError("Respuesta vacía de Gemini")
 
             # Si empieza con < o !, es HTML/error
             if text.startswith('<') or text.startswith('!'):
-                raise ValueError(f"Gemini devolvió HTML: {text[:50]}")
+                raise ValueError(f"HTML response: {text[:50]}")
 
             # Validar que sea JSON
             if not text.startswith('{'):
-                raise ValueError(f"Respuesta no es JSON: {text[:100]}")
+                raise ValueError(f"No JSON: {text[:100]}")
 
             return text
 
         except Exception as e:
             error_msg = str(e)
-            print(f"[GEMINI ERROR {attempt+1}] {error_msg}")
+            print(f"[GEMINI {attempt+1}] {error_msg}")
 
             if attempt == retry - 1:
                 raise ValueError(f"Gemini falló: {error_msg}")
 
             import time
-            time.sleep(3)
+            time.sleep(2)
 
-    raise ValueError("Gemini falló en todos los intentos")
+    raise ValueError("Gemini falló")
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
     ck = _cache_key(query or f"{team_a}_{team_b}", date_str)
