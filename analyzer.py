@@ -85,17 +85,40 @@ def _get_real_odds(team_a, team_b):
     except Exception:
         return ""
 
-def _call_gemini(prompt, max_tokens=12000):
+def _call_gemini(prompt, max_tokens=12000, retry=3):
     full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
     model = genai.GenerativeModel("models/gemini-2.5-flash")
-    response = model.generate_content(
-        full_prompt,
-        generation_config=genai.types.GenerationConfig(
-            max_output_tokens=max_tokens,
-            temperature=0.7
-        )
-    )
-    return response.text
+
+    for attempt in range(retry):
+        try:
+            response = model.generate_content(
+                full_prompt,
+                generation_config=genai.types.GenerationConfig(
+                    max_output_tokens=max_tokens,
+                    temperature=0.7,
+                    top_p=0.95
+                ),
+                request_options={"timeout": 60}
+            )
+
+            text = response.text.strip()
+
+            # Validar que no sea HTML
+            if text.startswith('<') or text.startswith('<!'):
+                if attempt < retry - 1:
+                    continue
+                else:
+                    raise ValueError("Gemini retornó HTML en lugar de JSON")
+
+            return text
+
+        except Exception as e:
+            if attempt == retry - 1:
+                raise ValueError(f"Error Gemini después de {retry} intentos: {str(e)}")
+            import time
+            time.sleep(2 ** attempt)  # Exponential backoff
+
+    raise ValueError("No se pudo obtener respuesta de Gemini")
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
     ck = _cache_key(query or f"{team_a}_{team_b}", date_str)
@@ -120,7 +143,8 @@ def analyze_match(team_a, team_b, sport, competition, date_str, context="", quer
 
     data = _extract_json(raw_text)
     if not data:
-        raise ValueError(f"No se pudo extraer JSON del analisis. Respuesta: {raw_text[:500]}")
+        print(f"[ERROR] JSON inválido. Raw text inicio: {raw_text[:200]}")
+        raise ValueError(f"No se pudo extraer JSON del analisis")
 
     # GENERAR 4 PARLAYS SEPARADOS (uno para cada nivel de riesgo)
     analysis_json = json.dumps(data, ensure_ascii=False)[:5000]

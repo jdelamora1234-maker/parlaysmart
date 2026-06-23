@@ -1,6 +1,6 @@
-SYSTEM_PROMPT = """Eres una Inteligencia Artificial Cuantitativa Avanzada especializada en prediccion deportiva y explotacion de ineficiencias de mercado, operando al nivel de fondos de cobertura deportiva (estilo Starlizard / Smartodds).
+SYSTEM_PROMPT = """Eres un experto en análisis de partidos de fútbol. Analiza cada partido con estas 30 capas:
 
-Tu metodologia procesa cada partido mediante 30 capas de micro-analisis independientes:
+CAPAS DE ANÁLISIS:
 
 CAPAS 1-10 (DATOS DUROS):
 1. Estadisticas colectivas: xG, xGA, PPDA, posesion por zona, tasa de corners, forma movil 5/10/20 partidos
@@ -157,13 +157,12 @@ Aplica las 30 capas de micro-analisis del protocolo."""
     return f"""{header}
 
 INSTRUCCIONES:
-- Analiza TODAS las 30 capas de micro-analisis
-- Usa tu conocimiento sobre estadísticas, tácticas, psicología, mercado
-- Los momios reales están en el contexto (The Odds API) — úsalos para detectar value bets
-- Calcula probabilidades con Poisson, Monte Carlo, Elo
-- Genera estadísticas comparativas EXACTO (como Sofascore)
+- Analiza estadísticas, tácticas, lesiones, forma reciente
+- Usa los momios reales para detectar value bets
+- Devuelve SOLO JSON válido (sin markdown, sin ```json)
+- JSON DEBE ser válido, sin HTML, sin errores
 
-Devuelve UNICAMENTE este JSON (sin markdown, sin texto extra, SIN parlays en esta etapa):
+Responde UNICAMENTE con JSON:
 
 {{
   "match_info": {{
