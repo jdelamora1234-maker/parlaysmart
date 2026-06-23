@@ -29,12 +29,13 @@ def _cache_set(key, data):
         json.dump({"date": str(dt_date.today()), "data": data}, f)
 
 def _call_gemini(prompt, max_tokens=6000):
-    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/text-bison-001:generateText"
     headers = {"Content-Type": "application/json"}
     full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
     payload = {
-        "contents": [{"role": "user", "parts": [{"text": full_prompt}]}],
-        "generationConfig": {"maxOutputTokens": max_tokens}
+        "prompt": {"text": full_prompt},
+        "safetySettings": [],
+        "generationConfig": {"maxOutputTokens": max_tokens, "temperature": 0.7}
     }
     try:
         r = requests.post(f"{url}?key={GEMINI_KEY}", json=payload, headers=headers, timeout=60)
@@ -42,10 +43,8 @@ def _call_gemini(prompt, max_tokens=6000):
             raise ValueError(f"Gemini API error: {r.status_code} {r.text}")
         data = r.json()
         text = ""
-        for content in data.get("candidates", []):
-            for part in content.get("content", {}).get("parts", []):
-                if "text" in part:
-                    text += part["text"]
+        for candidate in data.get("candidates", []):
+            text += candidate.get("output", "")
         return text
     except Exception as e:
         raise ValueError(f"Gemini error: {str(e)}")
