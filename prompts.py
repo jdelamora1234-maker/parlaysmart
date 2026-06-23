@@ -47,6 +47,34 @@ REGLA DE OUTPUT:
 Tu respuesta final es UNICAMENTE el objeto JSON solicitado. Cero texto introductorio, cero markdown, cero explicaciones fuera del JSON. Razona internamente. Salida: solo { ... }."""
 
 
+def build_single_parlay_prompt(parlay_type, match_analysis_json):
+    """Genera UN SOLO parlay específico basándose en el análisis previo."""
+    descriptions = {
+        "ultra_conservador": "1 pick ultra-seguro, probabilidad ~75%, momios ~1.65, EV+ confirmado",
+        "conservador": "2 picks de alta probabilidad, probabilidad ~55%, momios combinados ~3.0, ambos EV+",
+        "balanceado": "3 picks con valor explorado, probabilidad ~38%, momios combinados ~6.0, todos EV+",
+        "riesgoso": "4 picks de alto valor, probabilidad ~18%, momios combinados ~16.5, máxima ganancia potencial"
+    }
+
+    desc = descriptions.get(parlay_type, "")
+    return f"""Basándote EXACTAMENTE en este análisis: {match_analysis_json}
+
+Genera SOLO el parlay "{parlay_type}" ({desc}) en JSON válido:
+
+{{
+  "parlay": {{
+    "type": "{parlay_type}",
+    "selections": [
+      {{"market": "nombre mercado", "pick": "descripcion", "odds": 1.70, "reason": "razon con datos"}}
+    ],
+    "combined_odds": 1.70,
+    "win_probability": 75,
+    "expected_value": 0.12,
+    "strategy": "descripcion estrategia",
+    "stake_suggestion": "porcentaje del presupuesto"
+  }}
+}}"""
+
 def build_parlays_prompt(match_analysis_json):
     """Genera SOLO los 4 parlays basándose en el análisis previo."""
     return f"""Basándote en este análisis: {match_analysis_json}
@@ -149,6 +177,20 @@ Devuelve UNICAMENTE este JSON (sin markdown, sin texto extra, SIN parlays en est
     "competition": "{competition}",
     "date": "{date_str}"
   }},
+  "stats_comparison": [
+    {{"metric": "Ball possession %", "team_a": 0.0, "team_b": 0.0}},
+    {{"metric": "Expected goals (xG)", "team_a": 0.0, "team_b": 0.0}},
+    {{"metric": "Big chances", "team_a": 0, "team_b": 0}},
+    {{"metric": "Total shots", "team_a": 0, "team_b": 0}},
+    {{"metric": "Shots on target", "team_a": 0, "team_b": 0}},
+    {{"metric": "Goalkeeper saves", "team_a": 0, "team_b": 0}},
+    {{"metric": "Corner kicks", "team_a": 0, "team_b": 0}},
+    {{"metric": "Fouls committed", "team_a": 0, "team_b": 0}},
+    {{"metric": "Pass accuracy %", "team_a": 0.0, "team_b": 0.0}},
+    {{"metric": "Tackles", "team_a": 0, "team_b": 0}},
+    {{"metric": "Interceptions", "team_a": 0, "team_b": 0}},
+    {{"metric": "Offsides", "team_a": 0, "team_b": 0}}
+  ],
   "stats_team_a": {{
     "goals_scored_avg": 0.0,
     "goals_conceded_avg": 0.0,

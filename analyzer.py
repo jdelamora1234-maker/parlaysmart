@@ -125,13 +125,25 @@ def analyze_match(team_a, team_b, sport, competition, date_str, context="", quer
     if not data:
         raise ValueError(f"No se pudo extraer JSON del analisis. Respuesta: {raw_text[:500]}")
 
-    # SEGUNDA LLAMADA: Generar parlays basándose en el análisis
-    from prompts import build_parlays_prompt
-    parlays_prompt = build_parlays_prompt(json.dumps(data, ensure_ascii=False)[:2000])
-    parlays_text = _call_gemini(parlays_prompt, max_tokens=8000)
-    parlays_data = _extract_json(parlays_text)
-    if parlays_data and "parlays" in parlays_data:
-        data["parlays"] = parlays_data["parlays"]
+    # GENERAR 4 PARLAYS SEPARADOS (uno para cada nivel de riesgo)
+    from prompts import build_single_parlay_prompt
+    analysis_json = json.dumps(data, ensure_ascii=False)[:3000]
+
+    parlays = {}
+    parlay_types = ["ultra_conservador", "conservador", "balanceado", "riesgoso"]
+
+    for parlay_type in parlay_types:
+        try:
+            parlay_prompt = build_single_parlay_prompt(parlay_type, analysis_json)
+            parlay_text = _call_gemini(parlay_prompt, max_tokens=6000)
+            parlay_data = _extract_json(parlay_text)
+
+            if parlay_data and "parlay" in parlay_data:
+                parlays[parlay_type] = parlay_data["parlay"]
+        except Exception:
+            pass
+
+    data["parlays"] = parlays
 
     lam_home = float(data.get("lambda_home", 1.4))
     lam_away = float(data.get("lambda_away", 1.1))
