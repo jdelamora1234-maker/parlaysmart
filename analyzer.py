@@ -31,7 +31,7 @@ def _cache_set(key, data):
 
 def _call_gemini(prompt, max_tokens=6000):
     full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
-    model = genai.GenerativeModel("gemini-2.5-flash")
+    model = genai.GenerativeModel("models/gemini-2.5-flash")
     response = model.generate_content(full_prompt)
     return response.text
 
