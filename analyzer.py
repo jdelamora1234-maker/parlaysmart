@@ -31,9 +31,9 @@ def _cache_set(key, data):
 def _call_gemini(prompt, max_tokens=6000):
     url = f"https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent"
     headers = {"Content-Type": "application/json"}
+    full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
     payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+        "contents": [{"role": "user", "parts": [{"text": full_prompt}]}],
         "generationConfig": {"maxOutputTokens": max_tokens}
     }
     try:
