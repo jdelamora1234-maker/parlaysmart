@@ -114,6 +114,21 @@ def logout():
     return jsonify({"ok": True})
 
 
+@app.route("/test-gemini", methods=["GET"])
+def test_gemini():
+    """Test endpoint para verificar que Gemini funciona"""
+    try:
+        key = os.environ.get("GEMINI_API_KEY")
+        if not key:
+            return jsonify({"error": "GEMINI_API_KEY no configurada", "status": "ERROR"}), 500
+
+        from analyzer import _call_gemini
+        result = _call_gemini("Responde con JSON: {'test': 'ok'}", max_tokens=100)
+        return jsonify({"status": "OK", "result": result[:200], "api_key_present": True})
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "ERROR"}), 500
+
+
 @app.route("/today-matches", methods=["GET"])
 @limiter.limit("30 per hour")
 @require_auth
