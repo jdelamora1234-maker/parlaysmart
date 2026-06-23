@@ -87,10 +87,7 @@ def _get_real_odds(team_a, team_b):
 
 def _call_gemini(prompt, max_tokens=12000):
     full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
-    model = genai.GenerativeModel(
-        "models/gemini-2.5-flash",
-        tools=[genai.Tool(google_search=genai.GoogleSearch())]
-    )
+    model = genai.GenerativeModel("models/gemini-2.5-flash")
     response = model.generate_content(
         full_prompt,
         generation_config=genai.types.GenerationConfig(

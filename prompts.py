@@ -156,16 +156,12 @@ Aplica las 30 capas de micro-analisis del protocolo."""
 
     return f"""{header}
 
-BUSQUEDA WEB OBLIGATORIA:
-1. FBref, Sofascore, Understat, FotMob, Flashscore para estadisticas avanzadas (xG, xGA, PPDA, etc.)
-2. PlayDouit (playdoit.mx) - PRIORIDAD MAXIMA para momios actuales de TODOS los mercados
-3. Caliente, 1xBet como referencia comparativa
-4. Noticias ultimas 48h: lesiones, suspensiones, estado de vestuario
-5. Alineaciones filtradas / entrenamientos recientes
-6. Condiciones meteorologicas exactas para la hora y lugar del partido
-7. Perfil del arbitro designado en la temporada actual
-
-Con toda la informacion recopilada, ejecuta mentalmente 10,000 iteraciones Monte Carlo cruzando las 30 variables. Calcula True Odds propios. Compara con cuotas de PlayDouit para detectar value bets (EV+).
+INSTRUCCIONES:
+- Analiza TODAS las 30 capas de micro-analisis
+- Usa tu conocimiento sobre estadísticas, tácticas, psicología, mercado
+- Los momios reales están en el contexto (The Odds API) — úsalos para detectar value bets
+- Calcula probabilidades con Poisson, Monte Carlo, Elo
+- Genera estadísticas comparativas EXACTO (como Sofascore)
 
 Devuelve UNICAMENTE este JSON (sin markdown, sin texto extra, SIN parlays en esta etapa):
 
