@@ -87,7 +87,8 @@ def _get_real_odds(team_a, team_b):
 def _call_gemini(prompt, max_tokens=8000, retry=2):
     """Llamada a Gemini vía API REST (sin SDKs problemáticos)."""
     full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+    # Usar modelo que definitivamente existe en v1beta
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
 
     for attempt in range(retry):
         try:
