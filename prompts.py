@@ -47,6 +47,74 @@ REGLA DE OUTPUT:
 Tu respuesta final es UNICAMENTE el objeto JSON solicitado. Cero texto introductorio, cero markdown, cero explicaciones fuera del JSON. Razona internamente. Salida: solo { ... }."""
 
 
+def build_parlays_prompt(match_analysis_json):
+    """Genera SOLO los 4 parlays basándose en el análisis previo."""
+    return f"""Basándote en este análisis: {match_analysis_json}
+
+Genera SOLO los 4 parlays (ultra_conservador, conservador, balanceado, riesgoso) en este JSON (SIN nada más):
+
+{{
+  "parlays": {{
+    "ultra_conservador": {{
+      "name": "Ultra Conservador",
+      "risk_level": 1,
+      "risk_color": "green",
+      "selections": [
+        {{"market": "nombre mercado", "pick": "descripcion", "odds": 1.65, "reason": "justificacion"}}
+      ],
+      "combined_odds": 1.65,
+      "win_probability": 75,
+      "expected_value": 0.12,
+      "strategy": "1 pick ultra-seguro",
+      "stake_suggestion": "30-40% de presupuesto"
+    }},
+    "conservador": {{
+      "name": "Conservador",
+      "risk_level": 3,
+      "risk_color": "blue",
+      "selections": [
+        {{"market": "mercado 1", "pick": "pick 1", "odds": 1.70, "reason": "razon"}},
+        {{"market": "mercado 2", "pick": "pick 2", "odds": 1.80, "reason": "razon"}}
+      ],
+      "combined_odds": 3.06,
+      "win_probability": 55,
+      "expected_value": 0.18,
+      "strategy": "2 picks de alta probabilidad",
+      "stake_suggestion": "20-25% de presupuesto"
+    }},
+    "balanceado": {{
+      "name": "Balanceado",
+      "risk_level": 5,
+      "risk_color": "gold",
+      "selections": [
+        {{"market": "m1", "pick": "p1", "odds": 1.80, "reason": "r1"}},
+        {{"market": "m2", "pick": "p2", "odds": 1.90, "reason": "r2"}},
+        {{"market": "m3", "pick": "p3", "odds": 1.75, "reason": "r3"}}
+      ],
+      "combined_odds": 5.99,
+      "win_probability": 38,
+      "expected_value": 0.22,
+      "strategy": "3 picks con valor",
+      "stake_suggestion": "15% de presupuesto"
+    }},
+    "riesgoso": {{
+      "name": "Riesgoso",
+      "risk_level": 8,
+      "risk_color": "red",
+      "selections": [
+        {{"market": "m1", "pick": "p1", "odds": 2.20, "reason": "r1"}},
+        {{"market": "m2", "pick": "p2", "odds": 2.50, "reason": "r2"}},
+        {{"market": "m3", "pick": "p3", "odds": 3.00, "reason": "r3"}}
+      ],
+      "combined_odds": 16.5,
+      "win_probability": 18,
+      "expected_value": 0.35,
+      "strategy": "picks de alto valor",
+      "stake_suggestion": "5-10% de presupuesto"
+    }}
+  }}
+}}"""
+
 def build_analysis_prompt(team_a, team_b, sport, competition, date_str, context="", query=""):
     if query:
         header = f"""El usuario quiere analizar: "{query}"
@@ -71,9 +139,7 @@ BUSQUEDA WEB OBLIGATORIA:
 
 Con toda la informacion recopilada, ejecuta mentalmente 10,000 iteraciones Monte Carlo cruzando las 30 variables. Calcula True Odds propios. Compara con cuotas de PlayDouit para detectar value bets (EV+).
 
-IMPORTANTE: Los 4 parlays (ultra_conservador, conservador, balanceado, riesgoso) deben tener TODAS las selections completadas con market, pick, odds y reason.
-
-Devuelve UNICAMENTE este JSON (sin markdown, sin texto extra):
+Devuelve UNICAMENTE este JSON (sin markdown, sin texto extra, SIN parlays en esta etapa):
 
 {{
   "match_info": {{
@@ -342,66 +408,7 @@ Devuelve UNICAMENTE este JSON (sin markdown, sin texto extra):
   "lambda_home": 1.4,
   "lambda_away": 1.1,
   "elo_home": 1700,
-  "elo_away": 1650,
-  "parlays": {{
-    "ultra_conservador": {{
-      "name": "Ultra Conservador",
-      "risk_level": 1,
-      "risk_color": "green",
-      "selections": [
-        {{"market": "nombre del mercado", "pick": "descripcion del pick", "odds": 1.65, "reason": "justificacion con datos de las 30 capas"}}
-      ],
-      "combined_odds": 1.65,
-      "win_probability": 75,
-      "expected_value": 0.12,
-      "strategy": "1 pick ultra-seguro basado en valor esperado positivo confirmado en PlayDouit",
-      "stake_suggestion": "30-40% de tu presupuesto"
-    }},
-    "conservador": {{
-      "name": "Conservador",
-      "risk_level": 3,
-      "risk_color": "blue",
-      "selections": [
-        {{"market": "mercado 1", "pick": "pick 1", "odds": 1.70, "reason": ""}},
-        {{"market": "mercado 2", "pick": "pick 2", "odds": 1.80, "reason": ""}}
-      ],
-      "combined_odds": 3.06,
-      "win_probability": 55,
-      "expected_value": 0.18,
-      "strategy": "2 picks de alta probabilidad con momios de PlayDouit",
-      "stake_suggestion": "20-25% de tu presupuesto"
-    }},
-    "balanceado": {{
-      "name": "Balanceado",
-      "risk_level": 5,
-      "risk_color": "gold",
-      "selections": [
-        {{"market": "mercado 1", "pick": "pick 1", "odds": 1.80, "reason": ""}},
-        {{"market": "mercado 2", "pick": "pick 2", "odds": 1.90, "reason": ""}},
-        {{"market": "mercado 3", "pick": "pick 3", "odds": 1.75, "reason": ""}}
-      ],
-      "combined_odds": 5.99,
-      "win_probability": 38,
-      "expected_value": 0.22,
-      "strategy": "3 picks que explotan ineficiencias detectadas en PlayDouit",
-      "stake_suggestion": "15% de tu presupuesto"
-    }},
-    "riesgoso": {{
-      "name": "Riesgoso / Bomba",
-      "risk_level": 8,
-      "risk_color": "red",
-      "selections": [
-        {{"market": "mercado 1", "pick": "pick 1", "odds": 2.20, "reason": ""}},
-        {{"market": "mercado 2", "pick": "pick 2", "odds": 2.50, "reason": ""}},
-        {{"market": "mercado 3", "pick": "pick 3", "odds": 3.00, "reason": ""}}
-      ],
-      "combined_odds": 16.5,
-      "win_probability": 18,
-      "expected_value": 0.35,
-      "strategy": "picks de alto valor donde PlayDouit tiene sesgo de aficionado explotable",
-      "stake_suggestion": "5-10% de tu presupuesto"
-    }}
-  }}
+  "elo_away": 1650
 }}"""
 
 

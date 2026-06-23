@@ -110,11 +110,19 @@ def analyze_match(team_a, team_b, sport, competition, date_str, context="", quer
     real_odds = _get_real_odds(team_a, team_b)
     full_context = "\n\n".join(filter(None, [real_context, real_odds, context]))
     prompt = build_analysis_prompt(team_a, team_b, sport, competition, date_str, full_context, query=query)
-    raw_text = _call_gemini(prompt, max_tokens=16000)
+    raw_text = _call_gemini(prompt, max_tokens=12000)
 
     data = _extract_json(raw_text)
     if not data:
         raise ValueError(f"No se pudo extraer JSON del analisis. Respuesta: {raw_text[:500]}")
+
+    # SEGUNDA LLAMADA: Generar parlays basándose en el análisis
+    from prompts import build_parlays_prompt
+    parlays_prompt = build_parlays_prompt(json.dumps(data, ensure_ascii=False)[:2000])
+    parlays_text = _call_gemini(parlays_prompt, max_tokens=8000)
+    parlays_data = _extract_json(parlays_text)
+    if parlays_data and "parlays" in parlays_data:
+        data["parlays"] = parlays_data["parlays"]
 
     lam_home = float(data.get("lambda_home", 1.4))
     lam_away = float(data.get("lambda_away", 1.1))
