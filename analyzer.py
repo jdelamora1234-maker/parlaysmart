@@ -1,12 +1,10 @@
-import os, json, re, hashlib
+import os, json, re, hashlib, requests
 from datetime import date as dt_date
-from google import genai
-from google.genai import types
 from models import poisson_probabilities, monte_carlo, combine_predictions, elo_expected, prob_to_odds
 from prompts import SYSTEM_PROMPT, build_analysis_prompt, build_today_matches_prompt, build_multi_analysis_prompt
 from football_api import get_context_for_match, get_fixtures_for_mx_date, fixtures_to_matches
 
-client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
 
 CACHE_DIR = os.path.join(os.path.dirname(__file__), "cache")
 os.makedirs(CACHE_DIR, exist_ok=True)
@@ -31,22 +29,26 @@ def _cache_set(key, data):
         json.dump({"date": str(dt_date.today()), "data": data}, f)
 
 def _call_gemini(prompt, max_tokens=6000):
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+        "generationConfig": {"maxOutputTokens": max_tokens}
+    }
     try:
-        response = client.models.generate_content(
-            model="gemini-pro",
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                max_output_tokens=max_tokens,
-                system_instruction=SYSTEM_PROMPT,
-            )
-        )
-        raw = ""
-        for part in response.candidates[0].content.parts:
-            if hasattr(part, "text") and part.text:
-                raw += part.text
-        return raw
+        r = requests.post(f"{url}?key={GEMINI_KEY}", json=payload, headers=headers, timeout=60)
+        if r.status_code != 200:
+            raise ValueError(f"Gemini API error: {r.status_code} {r.text}")
+        data = r.json()
+        text = ""
+        for content in data.get("candidates", []):
+            for part in content.get("content", {}).get("parts", []):
+                if "text" in part:
+                    text += part["text"]
+        return text
     except Exception as e:
-        raise ValueError(str(e))
+        raise ValueError(f"Gemini error: {str(e)}")
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
     ck = _cache_key(query or f"{team_a}_{team_b}", date_str)
