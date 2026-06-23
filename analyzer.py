@@ -106,16 +106,28 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
             resp = requests.post(url, json=payload, timeout=45)
 
             if resp.status_code != 200:
-                raise ValueError(f"HTTP {resp.status_code}: {resp.text[:200]}")
+                raise ValueError(f"HTTP {resp.status_code}: {resp.text[:300]}")
 
             data = resp.json()
-            text = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "").strip()
 
-            if text and text.startswith('{'):
-                return text
+            # Validar estructura de respuesta
+            candidates = data.get("candidates", [])
+            if not candidates or len(candidates) == 0:
+                raise ValueError("No candidates en respuesta Gemini")
+
+            candidate = candidates[0]
+            content = candidate.get("content", {})
+            parts = content.get("parts", [])
+
+            if not parts or len(parts) == 0:
+                raise ValueError("No parts en respuesta Gemini")
+
+            text = parts[0].get("text", "").strip()
 
             if not text:
-                raise ValueError("Respuesta vacía")
+                raise ValueError("Texto vacío en respuesta Gemini")
+
+            return text
 
         except Exception as e:
             error_msg = str(e)[:200]
@@ -124,7 +136,7 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
                 raise ValueError(f"Gemini error: {error_msg}")
             time.sleep(2)
 
-    raise ValueError("Gemini falló")
+    raise ValueError("Gemini falló después de reintentos")
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
     ck = _cache_key(query or f"{team_a}_{team_b}", date_str)
