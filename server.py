@@ -197,11 +197,12 @@ def predict_tournament():
 if __name__ == "__main__":
     key = os.environ.get("GEMINI_API_KEY")
     if not key:
-        print("GEMINI_API_KEY no encontrada en el environment")
+        print("❌ GEMINI_API_KEY NO ENCONTRADA")
     else:
-        print(f"Gemini API key cargada ({key[:12]}...)")
+        print(f"✅ Gemini API Key cargada: {key[:20]}...")
     code = os.environ.get("ACCESS_CODE", "Jorge2252")
-    print(f"Codigo de acceso: {code}")
+    print(f"✅ Codigo de acceso: {code}")
     port = int(os.environ.get("PORT", 5050))
-    print(f"Servidor iniciando en http://localhost:{port}")
+    print(f"✅ Puerto: {port}")
+    print(f"✅ Servidor iniciando...")
     app.run(host="0.0.0.0", port=port, debug=False)
