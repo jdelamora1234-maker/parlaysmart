@@ -85,42 +85,50 @@ def _get_real_odds(team_a, team_b):
         return ""
 
 def _call_gemini(prompt, max_tokens=8000, retry=2):
-    """Llamada a Gemini vía API REST (sin SDKs problemáticos)."""
+    """Llamada a Gemini vía API de Google AI Studio (funciona con API Key simple)."""
     full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
-    # Usar modelo que definitivamente existe en v1beta
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
 
     for attempt in range(retry):
         try:
+            # Usar Google AI Studio API que funciona mejor con claves simples
+            url = f"https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key={GEMINI_API_KEY}"
+
             payload = {
-                "contents": [{"parts": [{"text": full_prompt}]}],
+                "contents": [{
+                    "parts": [{
+                        "text": full_prompt
+                    }]
+                }],
+                "safetySettings": [],
                 "generationConfig": {
-                    "maxOutputTokens": min(max_tokens, 8000),
-                    "temperature": 0.5
+                    "maxOutputTokens": min(max_tokens, 4000),
+                    "temperature": 0.3,
+                    "topP": 0.8,
+                    "topK": 40
                 }
             }
 
-            resp = requests.post(url, json=payload, timeout=30)
+            resp = requests.post(url, json=payload, timeout=45)
 
             if resp.status_code != 200:
-                raise ValueError(f"HTTP {resp.status_code}: {resp.text[:200]}")
+                error_data = resp.json() if resp.headers.get('content-type') == 'application/json' else {}
+                error_msg = error_data.get('error', {}).get('message', resp.text[:200])
+                raise ValueError(f"HTTP {resp.status_code}: {error_msg}")
 
             data = resp.json()
             candidates = data.get("candidates", [])
 
             if not candidates:
-                raise ValueError("No candidates en respuesta")
+                raise ValueError("Sin respuesta de Gemini")
 
             text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "").strip()
 
             if not text:
-                raise ValueError("Respuesta vacía de Gemini")
+                raise ValueError("Respuesta vacía")
 
-            # Si empieza con < o !, es HTML/error
             if text.startswith('<') or text.startswith('!'):
-                raise ValueError(f"HTML response: {text[:50]}")
+                raise ValueError(f"HTML: {text[:50]}")
 
-            # Validar que sea JSON
             if not text.startswith('{'):
                 raise ValueError(f"No JSON: {text[:100]}")
 
@@ -131,7 +139,7 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
             print(f"[GEMINI {attempt+1}] {error_msg}")
 
             if attempt == retry - 1:
-                raise ValueError(f"Gemini falló: {error_msg}")
+                raise ValueError(f"Gemini: {error_msg}")
 
             import time
             time.sleep(2)
