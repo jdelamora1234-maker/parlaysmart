@@ -29,7 +29,7 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 CORS(app, supports_credentials=True)
 
-ACCESS_CODE = os.environ.get("ACCESS_CODE", "MAFE2025")
+ACCESS_CODE = os.environ.get("ACCESS_CODE", "Jorge2252")
 
 limiter = Limiter(
     get_remote_address,
@@ -198,7 +198,7 @@ if __name__ == "__main__":
         print("GEMINI_API_KEY no encontrada en el environment")
     else:
         print(f"Gemini API key cargada ({key[:12]}...)")
-    code = os.environ.get("ACCESS_CODE", "MAFE2025")
+    code = os.environ.get("ACCESS_CODE", "Jorge2252")
     print(f"Codigo de acceso: {code}")
     port = int(os.environ.get("PORT", 5050))
     print(f"Servidor iniciando en http://localhost:{port}")
