@@ -134,11 +134,12 @@ def debug_env():
     """Debug endpoint - muestra variables de entorno"""
     key = os.environ.get("GEMINI_API_KEY", "NO EXISTE")
     return jsonify({
+        "GEMINI_API_KEY_full": key if key != "NO EXISTE" else "N/A",
         "GEMINI_API_KEY_exists": key != "NO EXISTE",
         "GEMINI_API_KEY_length": len(key) if key != "NO EXISTE" else 0,
         "GEMINI_API_KEY_start": key[:20] if key != "NO EXISTE" else "N/A",
-        "ACCESS_CODE": os.environ.get("ACCESS_CODE", "NO EXISTE"),
-        "all_env_keys": list(os.environ.keys())[:10]
+        "GEMINI_API_KEY_end": key[-10:] if key != "NO EXISTE" else "N/A",
+        "ACCESS_CODE": os.environ.get("ACCESS_CODE", "DEFAULT_Jorge2252"),
     })
 
 
