@@ -118,15 +118,12 @@ def logout():
 def test_gemini():
     """Test endpoint para verificar que Gemini funciona"""
     try:
-        key = os.environ.get("GEMINI_API_KEY")
-        if not key:
-            return jsonify({"error": "GEMINI_API_KEY NO CONFIGURADA EN RENDER", "status": "ERROR"}), 500
-
-        from analyzer import _call_gemini
-        result = _call_gemini("Responde con JSON: {'test': 'ok'}", max_tokens=100)
-        return jsonify({"status": "OK", "result": result[:200], "api_key_len": len(key)})
+        from analyzer import _call_gemini, _extract_json
+        result = _call_gemini("Responde solamente con JSON: {\"test\": \"ok\"}", max_tokens=100)
+        extracted = _extract_json(result)
+        return jsonify({"status": "OK", "raw_response": result[:300], "extracted_json": extracted})
     except Exception as e:
-        return jsonify({"error": str(e), "status": "ERROR", "api_key_exists": bool(os.environ.get("GEMINI_API_KEY"))}), 500
+        return jsonify({"error": str(e), "status": "ERROR"}), 500
 
 
 @app.route("/debug-env", methods=["GET"])
