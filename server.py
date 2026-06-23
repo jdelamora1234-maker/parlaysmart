@@ -11,6 +11,8 @@ def _friendly_error(e):
         return "El servicio de IA esta temporalmente sin cupo. Intenta de nuevo despues de las 2 AM hora Mexico.", 503
     if "quota" in s.lower():
         return "Limite de uso alcanzado. Intenta mas tarde.", 503
+    if "Gemini" in s or "HTML" in s or "<" in s:
+        return "Error del servicio de IA. Intenta de nuevo en unos segundos.", 503
     return s, 500
 
 # Cargar .env si existe

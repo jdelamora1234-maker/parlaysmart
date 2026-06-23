@@ -85,40 +85,49 @@ def _get_real_odds(team_a, team_b):
     except Exception:
         return ""
 
-def _call_gemini(prompt, max_tokens=12000, retry=3):
+def _call_gemini(prompt, max_tokens=8000, retry=2):
+    """Llamada a Gemini con validación robusta."""
     full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
     model = genai.GenerativeModel("models/gemini-2.5-flash")
 
     for attempt in range(retry):
         try:
+            # Timeout más largo y configuración más simple
             response = model.generate_content(
                 full_prompt,
                 generation_config=genai.types.GenerationConfig(
-                    max_output_tokens=max_tokens,
-                    temperature=0.7,
-                    top_p=0.95
-                ),
-                request_options={"timeout": 60}
+                    max_output_tokens=min(max_tokens, 8000),
+                    temperature=0.5
+                )
             )
+
+            if not response or not response.text:
+                raise ValueError("Gemini devolvió respuesta vacía")
 
             text = response.text.strip()
 
-            # Validar que no sea HTML
-            if text.startswith('<') or text.startswith('<!'):
-                if attempt < retry - 1:
-                    continue
-                else:
-                    raise ValueError("Gemini retornó HTML en lugar de JSON")
+            # Si empieza con < o !, es HTML/error
+            if text.startswith('<') or text.startswith('!'):
+                raise ValueError(f"Gemini devolvió HTML: {text[:50]}")
+
+            # Validar que sea JSON
+            if not text.startswith('{'):
+                raise ValueError(f"Respuesta no es JSON: {text[:100]}")
 
             return text
 
         except Exception as e:
-            if attempt == retry - 1:
-                raise ValueError(f"Error Gemini después de {retry} intentos: {str(e)}")
-            import time
-            time.sleep(2 ** attempt)  # Exponential backoff
+            error_msg = str(e)
+            print(f"[GEMINI ERROR {attempt+1}] {error_msg}")
 
-    raise ValueError("No se pudo obtener respuesta de Gemini")
+            if attempt == retry - 1:
+                # Último intento falló
+                raise ValueError(f"Gemini no respondió correctamente: {error_msg}")
+
+            import time
+            time.sleep(3)  # Esperar 3 segundos antes de reintentar
+
+    raise ValueError("Gemini falló en todos los intentos")
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
     ck = _cache_key(query or f"{team_a}_{team_b}", date_str)
