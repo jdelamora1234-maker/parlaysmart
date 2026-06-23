@@ -1,10 +1,11 @@
 import os, json, re, hashlib, requests
 from datetime import date as dt_date
+import google.generativeai as genai
 from models import poisson_probabilities, monte_carlo, combine_predictions, elo_expected, prob_to_odds
 from prompts import SYSTEM_PROMPT, build_analysis_prompt, build_today_matches_prompt, build_multi_analysis_prompt
 from football_api import get_context_for_match, get_fixtures_for_mx_date, fixtures_to_matches
 
-GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
 CACHE_DIR = os.path.join(os.path.dirname(__file__), "cache")
 os.makedirs(CACHE_DIR, exist_ok=True)
@@ -29,26 +30,10 @@ def _cache_set(key, data):
         json.dump({"date": str(dt_date.today()), "data": data}, f)
 
 def _call_gemini(prompt, max_tokens=6000):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent"
-    headers = {"Content-Type": "application/json"}
     full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
-    payload = {
-        "contents": [{"role": "user", "parts": [{"text": full_prompt}]}],
-        "generationConfig": {"maxOutputTokens": max_tokens, "temperature": 0.7}
-    }
-    try:
-        r = requests.post(f"{url}?key={GEMINI_KEY}", json=payload, headers=headers, timeout=60)
-        if r.status_code != 200:
-            raise ValueError(f"Gemini API error: {r.status_code} {r.text}")
-        data = r.json()
-        text = ""
-        for candidate in data.get("candidates", []):
-            for part in candidate.get("content", {}).get("parts", []):
-                if "text" in part:
-                    text += part["text"]
-        return text
-    except Exception as e:
-        raise ValueError(f"Gemini error: {str(e)}")
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    response = model.generate_content(full_prompt, generation_config=genai.types.GenerationConfig(max_output_tokens=max_tokens, temperature=0.7))
+    return response.text
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
     ck = _cache_key(query or f"{team_a}_{team_b}", date_str)
@@ -128,27 +113,8 @@ def fetch_today_matches(date_str):
             data["source"] = "gemini"
             _cache_set(ck, data)
             return data
-    except Exception:
-        pass
-
-    # 2. API-Football como fallback (solo temporadas 2022-2024, pero funciona sin cupo)
-    try:
-        fixtures = get_fixtures_for_mx_date(date_str)
-        if fixtures:
-            leagues = fixtures_to_matches(fixtures)
-            total = sum(len(l["matches"]) for l in leagues)
-            if total > 0:
-                data = {"leagues": leagues, "total": total, "source": "api-football"}
-                for league in leagues:
-                    for m in league["matches"]:
-                        if not m.get("id"):
-                            m["id"] = f"{league.get('league_name','')}_{m.get('team_home','')}_{m.get('team_away','')}".lower().replace(" ","_")
-                _cache_set(ck, data)
-                return data
-    except Exception:
-        pass
-
-    raise ValueError("El servicio de IA esta temporalmente sin cupo. Intenta despues de las 2 AM hora Mexico.")
+    except Exception as e:
+        raise ValueError(f"No se pudieron obtener los partidos: {str(e)}")
 
 
 def analyze_multi_matches(matches_list, date_str):
