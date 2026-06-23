@@ -31,8 +31,8 @@ def _cache_set(key, data):
 
 def _call_gemini(prompt, max_tokens=6000):
     full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
-    model = genai.GenerativeModel("gemini-1.5-pro")
-    response = model.generate_content(full_prompt, generation_config=genai.types.GenerationConfig(max_output_tokens=max_tokens, temperature=0.7))
+    model = genai.GenerativeModel("gemini-pro")
+    response = model.generate_content(full_prompt)
     return response.text
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
