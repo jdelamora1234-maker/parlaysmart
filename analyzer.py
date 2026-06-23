@@ -34,8 +34,10 @@ def _call_gemini(prompt, max_tokens=6000):
     full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
     payload = {
         "prompt": {"text": full_prompt},
-        "safetySettings": [],
-        "generationConfig": {"maxOutputTokens": max_tokens, "temperature": 0.7}
+        "temperature": 0.7,
+        "candidateCount": 1,
+        "topP": 0.95,
+        "topK": 40
     }
     try:
         r = requests.post(f"{url}?key={GEMINI_KEY}", json=payload, headers=headers, timeout=60)
