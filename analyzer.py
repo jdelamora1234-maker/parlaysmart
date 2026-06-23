@@ -32,7 +32,7 @@ def _cache_set(key, data):
 
 def _call_gemini(prompt, max_tokens=6000):
     response = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-1.5-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
             tools=[types.Tool(google_search=types.GoogleSearch())],
