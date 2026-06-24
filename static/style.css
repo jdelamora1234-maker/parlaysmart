@@ -2021,3 +2021,215 @@ input, textarea { font-family: inherit; }
 .admin-del-btn:hover { color:#e53935; background:rgba(229,57,53,0.1); }
 .admin-loading, .admin-empty { color:#666; font-size:0.85rem; text-align:center; padding:20px 0; }
 .snav-admin { background:rgba(229,57,53,0.15) !important; color:#e53935 !important; }
+
+/* ==================== BOTONES FUNCIONALES ==================== */
+
+/* Múltiples partidos */
+.matches-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.match-input-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.match-input {
+  flex: 1;
+  padding: 10px;
+  background: #1a1f2e;
+  border: 1px solid #e74c3c;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.match-input:focus {
+  outline: none;
+  border-color: #ff6b6b;
+  box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+}
+
+.btn-remove-match {
+  padding: 10px 15px;
+  background: #c0392b;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.btn-remove-match:hover {
+  background: #a93226;
+}
+
+/* Guardar parlays */
+.btn-save-parlay {
+  padding: 12px 24px;
+  background: #27ae60;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+  margin-top: 15px;
+}
+
+.btn-save-parlay:hover {
+  background: #229954;
+}
+
+.saved-parlay {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: #1a1f2e;
+  border-left: 3px solid #e74c3c;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.parlay-meta {
+  display: flex;
+  gap: 15px;
+  font-size: 12px;
+  color: #95a5a6;
+}
+
+.parlay-content {
+  flex: 1;
+  margin: 0 15px;
+}
+
+.parlay-content p {
+  margin: 5px 0;
+  color: #ecf0f1;
+  font-size: 13px;
+}
+
+.btn-delete {
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid #c0392b;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-delete:hover {
+  background: #c0392b;
+  color: #fff;
+}
+
+/* Filtros */
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  background: #2c3e50;
+  border: 1px solid #34495e;
+  border-radius: 4px;
+  color: #ecf0f1;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.filter-btn:hover {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+.filter-btn.active {
+  background: #e74c3c;
+  border-color: #e74c3c;
+  color: #fff;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+/* Notificaciones */
+.notification {
+  position: fixed;
+  bottom: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 15px 25px;
+  background: #27ae60;
+  color: #fff;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: 0.3s ease;
+  z-index: 9999;
+}
+
+.notification.show {
+  bottom: 30px;
+}
+
+/* Admin panel mejorado */
+.admin-gen-btn {
+  padding: 10px 20px;
+  background: #3498db;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  margin: 5px;
+  transition: 0.2s;
+  font-weight: 500;
+}
+
+.admin-gen-btn:hover {
+  background: #2980b9;
+}
+
+.admin-pin-code {
+  display: block;
+  padding: 15px;
+  background: #2c3e50;
+  color: #f39c12;
+  border-radius: 4px;
+  margin: 10px 0;
+  font-family: monospace;
+  font-size: 14px;
+  word-break: break-all;
+  border: 1px solid #e74c3c;
+}
+
+.admin-copy-btn {
+  padding: 10px 15px;
+  background: #27ae60;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+  margin: 10px 0;
+}
+
+.admin-copy-btn:hover {
+  background: #229954;
+}
+
