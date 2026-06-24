@@ -123,7 +123,9 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
             print(f"[Gemini attempt {attempt+1}/{retry}] ERROR: {error_msg}")
             if attempt == retry - 1:
                 raise ValueError(f"Gemini error: {error_msg}")
-            time.sleep(2)
+            # En caso de 503 (overload), esperar más tiempo
+            wait_time = 5 if "503" in error_msg or "high demand" in error_msg else 2
+            time.sleep(wait_time)
 
     raise ValueError("Gemini falló después de reintentos")
 
