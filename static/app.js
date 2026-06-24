@@ -1703,7 +1703,7 @@ var mrActiveTab = 0;
 
 function renderMultiResults(data) {
   var matches = data.matches || [];
-  var parlays  = data.parlays || [];
+  var parlays  = data.parlays_combinados || data.parlays || [];
   mrActiveTab = 0;
 
   $('mrSubtitle').textContent = matches.length + ' partidos analizados';
