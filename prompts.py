@@ -103,15 +103,17 @@ def build_analysis_prompt(team_a, team_b, sport, competition, date_str, context=
     return f"""{team_a} vs {team_b}. {competition}.
 {context}
 
-Responde SOLO JSON (sin markdown):
+JSON con 4 parlays + estadísticas:
 {{
   "winner": "team_a/draw/team_b",
-  "confidence": 7,
+  "confidence": 8,
+  "team_a_stats": {{"goals_avg": 1.5, "possession": 55, "xg": 1.8, "key_players": "nombres"}},
+  "team_b_stats": {{"goals_avg": 1.2, "possession": 45, "xg": 1.3, "key_players": "nombres"}},
   "parlays": {{
-    "ultra_conservador": {{"picks": 1, "prob": 70, "odds": 1.75}},
-    "conservador": {{"picks": 2, "prob": 55, "odds": 3.5}},
-    "balanceado": {{"picks": 3, "prob": 40, "odds": 6.3}},
-    "riesgoso": {{"picks": 4, "prob": 18, "odds": 20.0}}
+    "ultra_conservador": {{"picks": 1, "odds": 1.75, "prob": 75, "reason": "máxima seguridad"}},
+    "conservador": {{"picks": 2, "odds": 3.5, "prob": 55, "reason": "riesgo bajo"}},
+    "balanceado": {{"picks": 3, "odds": 6.3, "prob": 40, "reason": "equilibrio"}},
+    "riesgoso": {{"picks": 4, "odds": 20.0, "prob": 18, "reason": "máximo valor"}}
   }},
   "lambda_home": 1.4,
   "lambda_away": 1.1,
