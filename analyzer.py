@@ -7,28 +7,6 @@ from football_api import get_context_for_match, get_fixtures_for_mx_date, fixtur
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "").strip()
 
-CACHE_DIR = os.path.join(os.path.dirname(__file__), "cache")
-os.makedirs(CACHE_DIR, exist_ok=True)
-
-def _cache_key(*parts):
-    raw = "|".join(str(p).lower().strip() for p in parts)
-    return hashlib.md5(raw.encode()).hexdigest()
-
-def _cache_get(key):
-    path = os.path.join(CACHE_DIR, key + ".json")
-    if not os.path.exists(path):
-        return None
-    with open(path) as f:
-        entry = json.load(f)
-    if entry.get("date") != str(dt_date.today()):
-        return None
-    return entry.get("data")
-
-def _cache_set(key, data):
-    path = os.path.join(CACHE_DIR, key + ".json")
-    with open(path, "w") as f:
-        json.dump({"date": str(dt_date.today()), "data": data}, f)
-
 def _get_real_odds(team_a, team_b):
     """Obtiene momios reales de The Odds API para un partido."""
     try:
@@ -149,12 +127,6 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
     raise ValueError("Gemini falló después de reintentos")
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
-    ck = _cache_key(query or f"{team_a}_{team_b}", date_str)
-    cached = _cache_get(ck)
-    if cached:
-        cached["_cached"] = True
-        return cached
-
     # Enriquecer con datos reales de API-Football
     real_context = ""
     if team_a and sport.lower() in ("futbol", "soccer", "football"):
@@ -218,7 +190,6 @@ def analyze_match(team_a, team_b, sport, competition, date_str, context="", quer
     }
 
     _enrich_parlays(data, combined, poisson)
-    _cache_set(ck, data)
     return data
 
 
@@ -253,13 +224,6 @@ def fetch_today_matches(date_str):
 
 
 def analyze_multi_matches(matches_list, date_str):
-    ids = "_".join(sorted(m.get("query_text") or m.get("id","") for m in matches_list))
-    ck = _cache_key("multi", ids, date_str)
-    cached = _cache_get(ck)
-    if cached:
-        cached["_cached"] = True
-        return cached
-
     prompt = build_multi_analysis_prompt(matches_list, date_str)
     raw_text = _call_gemini(prompt, max_tokens=16000)
 
@@ -304,64 +268,6 @@ def analyze_multi_matches(matches_list, date_str):
             }
         }
 
-    _cache_set(ck, data)
-    return data
-
-
-def predict_tournament(tournament):
-    ck = _cache_key("tournament", tournament)
-    cached = _cache_get(ck)
-    if cached:
-        return cached
-
-    prompt = f"""Eres un experto en analisis deportivo. Analiza y predice el torneo: "{tournament}"
-
-Usa Google Search para obtener informacion actualizada: equipos participantes, forma reciente, lesionados clave, momios actuales de las casas de apuestas.
-
-Responde UNICAMENTE con JSON valido con esta estructura:
-{{
-  "tournament_name": "nombre completo del torneo",
-  "current_stage": "fase actual o proxima fase",
-  "predicted_winner": "equipo o seleccion ganadora",
-  "winner_probability": "XX%",
-  "winner_reason": "explicacion breve en 1-2 oraciones de por que ganara",
-  "top_contenders": [
-    {{"team": "nombre", "probability": "XX%", "reason": "fortaleza principal"}},
-    {{"team": "nombre", "probability": "XX%", "reason": "fortaleza principal"}},
-    {{"team": "nombre", "probability": "XX%", "reason": "fortaleza principal"}},
-    {{"team": "nombre", "probability": "XX%", "reason": "fortaleza principal"}},
-    {{"team": "nombre", "probability": "XX%", "reason": "fortaleza principal"}}
-  ],
-  "group_predictions": [
-    {{
-      "group": "A",
-      "teams": [
-        {{"team": "nombre", "points": 9}},
-        {{"team": "nombre", "points": 6}},
-        {{"team": "nombre", "points": 3}},
-        {{"team": "nombre", "points": 0}}
-      ]
-    }}
-  ],
-  "bracket": [
-    {{
-      "round": "Cuartos de Final",
-      "matches": [
-        {{"team_a": "nombre", "team_b": "nombre", "predicted_winner": "nombre", "predicted_score": "2-1"}}
-      ]
-    }}
-  ],
-  "analysis": "Parrafo con el analisis general del torneo, favoritos, sorpresas posibles y factores clave"
-}}
-
-Si es un torneo de grupos incluye group_predictions con TODOS los grupos.
-Si ya esta en fase eliminatoria incluye bracket con las rondas restantes.
-Si es una liga regular, omite bracket y group_predictions y enfoca en top_contenders."""
-
-    raw = _call_gemini(prompt, max_tokens=8000)
-    data = _extract_json(raw)
-    if not data:
-        raise ValueError("No se pudo generar la prediccion del torneo")
     _cache_set(ck, data)
     return data
 
