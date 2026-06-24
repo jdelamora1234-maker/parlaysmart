@@ -113,19 +113,19 @@ def _search_duckduckgo(query):
 
 
 def _get_fallback_data(query):
-    """Devuelve datos de fallback local"""
+    """Devuelve datos de fallback local con contexto mejorado"""
     return {
         "source": "fallback_local",
         "query": query,
         "results": [
             {
-                "title": "Información local",
+                "title": "Análisis sin búsqueda en línea (Gemini usará Google Search)",
                 "link": "local",
-                "snippet": f"Búsqueda local para: {query}"
+                "snippet": f"Gemini analizará {query} usando sus herramientas de búsqueda integradas. Para mejor precisión, configura SERPAPI_KEY en Render."
             }
         ],
         "timestamp": datetime.now().isoformat(),
-        "note": "Sin acceso a búsqueda en línea. Usando análisis local."
+        "note": "⚠️ Usando análisis de Gemini + Google Search integrado (no SerpAPI)"
     }
 
 
