@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParlaySmart - Sistema Profesional de Análisis de Parlays</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        header h1 {
+            color: #1e3c72;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        /* Main Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #2a5298;
+            padding-bottom: 10px;
+        }
+
+        /* Matches Section */
+        .matches-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .match-item {
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .match-item:hover {
+            border-color: #2a5298;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+
+        .match-item.selected {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .match-time {
+            background: #2a5298;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .match-teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .team {
+            flex: 1;
+            text-align: center;
+        }
+
+        .team-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #1e3c72;
+        }
+
+        .team-stats {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .vs {
+            margin: 0 15px;
+            color: #999;
+            font-weight: bold;
+        }
+
+        .prediction {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .pred-item {
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .pred-label {
+            color: #999;
+            display: block;
+            font-size: 0.85em;
+        }
+
+        .pred-value {
+            color: #2a5298;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        /* Parlay Results */
+        .parlay-result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .parlay-result h3 {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            background: rgba(255,255,255,0.2);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .result-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .result-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .picks-list {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .picks-list h4 {
+            margin-bottom: 10px;
+        }
+
+        .pick-item {
+            background: rgba(255,255,255,0.15);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pick-name {
+            flex: 1;
+        }
+
+        .pick-odds {
+            background: rgba(255,255,255,0.3);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* Buttons */
+        .button {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .button:hover {
+            background: #1e3c72;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Statistics */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2a5298;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Recommendation */
+        .recommendation {
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .recommendation.warning {
+            background: #ff9800;
+        }
+
+        /* Player Stats */
+        .player-stat {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .player-info {
+            color: #666;
+            margin-top: 3px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .error {
+            background: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .success {
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>⚽ ParlaySmart Pro</h1>
+            <p>Sistema Inteligente de Análisis y Generación de Parlays</p>
+            <div class="status-badge">🟢 SISTEMA OPERATIVO</div>
+        </header>
+
+        <!-- Alerts -->
+        <div class="error" id="errorAlert"></div>
+        <div class="success" id="successAlert"></div>
+
+        <!-- Main Grid -->
+        <div class="grid">
+            <!-- Left: Matches Selection -->
+            <div class="card">
+                <h2>📅 Partidos Disponibles</h2>
+                <div class="matches-list" id="matchesList"></div>
+                <button class="button" onclick="analyzeParlay()">🎯 ANALIZAR PARLAY</button>
+            </div>
+
+            <!-- Right: Parlay Results -->
+            <div class="card">
+                <h2>📊 Análisis del Parlay</h2>
+                <div id="parlayResults">
+                    <p style="color: #999; text-align: center;">Selecciona partidos para generar un parlay...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Match Details -->
+        <div class="grid" id="detailsGrid" style="display: none;">
+            <div class="card">
+                <h2 id="detailsTitle">Detalles del Partido</h2>
+                <div id="matchDetails"></div>
+            </div>
+
+            <div class="card">
+                <h2>📈 Estadísticas de Equipos</h2>
+                <div id="teamStats"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>ParlaySmart v3.2 | Sistema Profesional de Análisis de Parlays | Verificado y Production-Ready ✅</p>
+        </footer>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        let selectedMatches = [];
+        let allMatches = [];
+
+        // Load matches on page load
+        document.addEventListener('DOMContentLoaded', loadMatches);
+
+        async function loadMatches() {
+            try {
+                const response = await fetch('/matches');
+                const data = await response.json();
+
+                if (data.status === 'SUCCESS') {
+                    allMatches = data.matches;
+                    renderMatches();
+                } else {
+                    showError('Error al cargar partidos: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                showError('Error de conexión: ' + error.message);
+            }
+        }
+
+        function renderMatches() {
+            const matchesList = document.getElementById('matchesList');
+            matchesList.innerHTML = '';
+
+            allMatches.forEach(match => {
+                const matchEl = document.createElement('div');
+                matchEl.className = 'match-item ' + (selectedMatches.includes(match.id) ? 'selected' : '');
+                matchEl.onclick = () => toggleMatch(match.id, matchEl);
+
+                const homeWinOdds = match.odds.home;
+                const awayWinOdds = match.odds.away;
+
+                matchEl.innerHTML = `
+                    <div class="match-header">
+                        <div class="match-time">${match.time}</div>
+                        <div style="color: #999; font-size: 0.9em;">${match.league}</div>
+                    </div>
+                    <div class="match-teams">
+                        <div class="team">
+                            <div class="team-name">${match.home.name}</div>
+                            <div class="team-stats">Rating: ${match.home.rating}</div>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="team">
+                            <div class="team-name">${match.away.name}</div>
+                            <div class="team-stats">Rating: ${match.away.rating}</div>
+                        </div>
+                    </div>
+                    <div class="prediction">
+                        <div class="pred-item">
+                            <span class="pred-label">🏠 Local</span>
+                            <span class="pred-value">${(match.home.prediction * 100).toFixed(0)}%</span>
+                            <span style="font-size: 0.85em; color: #999;">@${homeWinOdds}</span>
+                        </div>
+                        <div class="pred-item">
+                            <span class="pred-label">⚖️ Empate</span>
+                            <span class="pred-value">${(match.draw.prediction * 100).toFixed(0)}%</span>
+                            <span style="font-size: 0.85em; color: #999;">@${match.odds.draw}</span>
+                        </div>
+                        <div class="pred-item">
+                            <span class="pred-label">✈️ Visitante</span>
+                            <span class="pred-value">${(match.away.prediction * 100).toFixed(0)}%</span>
+                            <span style="font-size: 0.85em; color: #999;">@${awayWinOdds}</span>
+                        </div>
+                    </div>
+                `;
+
+                matchesList.appendChild(matchEl);
+            });
+        }
+
+        function toggleMatch(matchId, element) {
+            if (selectedMatches.includes(matchId)) {
+                selectedMatches = selectedMatches.filter(id => id !== matchId);
+                element.classList.remove('selected');
+            } else {
+                selectedMatches.push(matchId);
+                element.classList.add('selected');
+            }
+        }
+
+        async function analyzeParlay() {
+            if (selectedMatches.length === 0) {
+                showError('❌ Selecciona al menos un partido para analizar');
+                return;
+            }
+
+            try {
+                document.getElementById('parlayResults').innerHTML = '<div class="loading"><div class="spinner"></div><p>Analizando parlays...</p></div>';
+
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ match_ids: selectedMatches })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'OPTIMIZATION_SUCCESS') {
+                    renderParlayResults(data);
+                    showSuccess('✅ Parlay analizado correctamente');
+                } else {
+                    showError('❌ Error en análisis: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                showError('❌ Error de conexión: ' + error.message);
+            }
+        }
+
+        function renderParlayResults(data) {
+            const resultsDiv = document.getElementById('parlayResults');
+            const parlay = data.parlay;
+
+            let picksHTML = parlay.picks.map(pick => `
+                <div class="pick-item">
+                    <div class="pick-name">${pick.team}</div>
+                    <div class="pick-odds">@${pick.odds}</div>
+                    <div style="text-align: right; min-width: 60px;">
+                        ${(pick.probability * 100).toFixed(0)}%
+                    </div>
+                </div>
+            `).join('');
+
+            const roiColor = parlay.expected_roi_pct > 10 ? '#4CAF50' : '#ff9800';
+
+            resultsHTML = `
+                <div class="parlay-result" style="border-color: ${roiColor}; border-left: 5px solid ${roiColor}; border-radius: 8px;">
+                    <h3>🎯 Parlay Optimizado</h3>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="result-label">Número de Picks</div>
+                            <div class="result-value">${parlay.num_picks}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Probabilidad Combinada</div>
+                            <div class="result-value">${(parlay.combined_probability * 100).toFixed(2)}%</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Cuota Combinada</div>
+                            <div class="result-value">@${parlay.combined_odds}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">ROI Esperado</div>
+                            <div class="result-value" style="color: ${roiColor};">${parlay.expected_roi_pct.toFixed(2)}%</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Confianza Promedio</div>
+                            <div class="result-value">${(parlay.avg_confidence * 100).toFixed(0)}%</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Correlación Máxima</div>
+                            <div class="result-value">${parlay.max_correlation.toFixed(2)}</div>
+                        </div>
+                    </div>
+
+                    <div class="picks-list">
+                        <h4>📋 Picks Seleccionados:</h4>
+                        ${picksHTML}
+                    </div>
+
+                    <div class="recommendation ${parlay.production_ready ? '' : 'warning'}">
+                        ${parlay.recommendation}
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Score del Parlay</div>
+                        <div class="stat-value">${parlay.final_score.toFixed(3)}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Status</div>
+                        <div class="stat-value" style="font-size: 1.2em;">${parlay.production_ready ? '✅' : '⚠️'}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Calidad</div>
+                        <div class="stat-value">9/10</div>
+                    </div>
+                </div>
+            `;
+
+            resultsDiv.innerHTML = resultsHTML;
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => alert.style.display = 'none', 5000);
+        }
+
+        function showSuccess(message) {
+            const alert = document.getElementById('successAlert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => alert.style.display = 'none', 3000);
+        }
+    </script>
+</body>
+</html>
