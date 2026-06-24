@@ -127,21 +127,56 @@ Genera SOLO los 4 parlays (ultra_conservador, conservador, balanceado, riesgoso)
 }}"""
 
 def build_analysis_prompt(team_a, team_b, sport, competition, date_str, context="", query=""):
-    return f"""{team_a} vs {team_b}. {competition}. Análisis 30 capas + 4 parlays.
+    return f"""ANÁLISIS EXHAUSTIVO 30 CAPAS: {team_a} vs {team_b} ({competition})
+
+CRÍTICO: INCLUIR SIEMPRE estas estadísticas:
+1. ESTADÍSTICAS DE EQUIPO (ambos):
+   - goals_avg, goals_for_last_5, goals_against_last_5
+   - possession, xg, xga
+   - shots_on_target, corners, fouls
+   - form (últimos 5 partidos: W/D/L)
+
+2. ESTADÍSTICAS INDIVIDUALES - KEY PLAYERS de cada equipo:
+   - Nombre jugador, posición, goles/asists/tarjetas
+   - Lesiones CRÍTICAS (jugadores ausentes)
+   - Cambios tácticos recientes
+   - Jugadores en mal estado físico
+
+3. CONTEXTO TÁCTICO:
+   - Formación de cada equipo
+   - Dependencia de estrella
+   - Cambios de entrenador reciente
+
 {context}
 
-JSON válido (sin markdown):
+RETORNA SOLO JSON (sin markdown):
 {{
   "winner": "team_a/draw/team_b",
   "confidence": 8,
   "predicted_score": "2-1",
-  "team_a_stats": {{"goals_avg": 1.5, "possession": 55, "xg": 1.8, "key_players": "nombres", "injuries": "lesiones"}},
-  "team_b_stats": {{"goals_avg": 1.2, "possession": 45, "xg": 1.3, "key_players": "nombres", "injuries": "lesiones"}},
+  "team_a_stats": {{
+    "goals_avg": 1.5, "goals_for_last_5": [1,2,1,0,3], "goals_against_last_5": [0,1,1,2,0],
+    "possession": 55, "xg": 1.8, "xga": 0.9,
+    "shots_on_target": 4, "corners": 5, "fouls": 12,
+    "form": "WDWLL",
+    "key_players": "Messi (F) 5g, Busquets (M) 2a, Piqué (D) - LESIONADO",
+    "injuries": "Piqué (muscular), Alba (tobillo)",
+    "tactical_notes": "4-3-3, depende de Messi"
+  }},
+  "team_b_stats": {{
+    "goals_avg": 1.2, "goals_for_last_5": [2,1,0,2,1], "goals_against_last_5": [1,0,2,1,1],
+    "possession": 45, "xg": 1.3, "xga": 1.1,
+    "shots_on_target": 3, "corners": 4, "fouls": 14,
+    "form": "WWDWL",
+    "key_players": "Benzema (F) 6g, Modric (M) 3a, Ramos (D) - FIT",
+    "injuries": "Ninguna crítica",
+    "tactical_notes": "4-2-3-1, estable"
+  }},
   "parlays": {{
-    "ultra_conservador": {{"picks": 1, "odds": 1.75, "prob": 75, "reason": "análisis 30 capas: máxima seguridad"}},
-    "conservador": {{"picks": 2, "odds": 3.5, "prob": 55, "reason": "análisis 30 capas: riesgo bajo"}},
-    "balanceado": {{"picks": 3, "odds": 6.3, "prob": 40, "reason": "análisis 30 capas: equilibrio"}},
-    "riesgoso": {{"picks": 4, "odds": 20.0, "prob": 18, "reason": "análisis 30 capas: máximo valor"}}
+    "ultra_conservador": {{"picks": 1, "odds": 1.75, "prob": 75, "reason": "analysis"}},
+    "conservador": {{"picks": 2, "odds": 3.5, "prob": 55, "reason": "analysis"}},
+    "balanceado": {{"picks": 3, "odds": 6.3, "prob": 40, "reason": "analysis"}},
+    "riesgoso": {{"picks": 4, "odds": 20.0, "prob": 18, "reason": "analysis"}}
   }},
   "lambda_home": 1.4,
   "lambda_away": 1.1,
@@ -203,49 +238,72 @@ def build_multi_analysis_prompt(matches_list, date_str, raw_queries=None):
         match_lines.append(f"{i}. {qt}")
     matches_text = "\n".join(match_lines)
 
-    return f"""ANÁLISIS 30 CAPAS para {n} partidos (stats, jugadores, tácticas, psicología, fatiga, clima, mercado, modelos, lesiones, árbitro, etc).
+    return f"""ANÁLISIS EXHAUSTIVO 30 CAPAS PARA {n} PARTIDOS
 
-Partidos:
+PARTIDOS A ANALIZAR:
 {matches_text}
 
-JSON con: winner, confidence, score, stats_home, stats_away, parlays, lambda, elo.
-Combinado: resumen 30 capas + stats generales + 4 parlays combinados.
+CRÍTICO PARA CADA PARTIDO:
+- Estadísticas de EQUIPO: goals, xg, possession, forma, shots, corners
+- Estadísticas INDIVIDUALES: key players por equipo con goles/asists/lesiones
+- Lesiones CRÍTICAS que afecten el partido
+- Contexto táctico y cambios recientes
 
-JSON (sin markdown):
+RETORNA SOLO JSON (sin markdown):
 {{
-  "dia_resumen": "análisis profundo de 30 capas para el día",
+  "dia_resumen": "Análisis profundo 30 capas del día - {n} partidos, lesiones, form, clima, tendencias",
   "matches": [
     {{
-      "id": "partido1",
-      "team_home": "...",
-      "team_away": "...",
+      "id": "match_id",
+      "team_home": "nombre",
+      "team_away": "nombre",
       "winner": "home/draw/away",
       "confidence": 8,
       "predicted_score": "2-1",
       "score_probability": 15,
-      "stats_home": {{"goals_avg": 1.5, "xg": 1.8, "posesion": 55, "key_players": "nombres"}},
-      "stats_away": {{"goals_avg": 1.2, "xg": 1.3, "posesion": 45, "key_players": "nombres"}},
+      "stats_home": {{
+        "goals_avg": 1.5, "goals_last_5": [1,2,1,0,3],
+        "xg": 1.8, "possession": 55, "form": "WDWLL",
+        "key_players": "Messi (F) 5g, Busquets (M) 2a, Piqué (D) LESIONADO",
+        "injuries": "Piqué (muscular), Alba (tobillo)",
+        "shots_on_target": 4, "corners": 5
+      }},
+      "stats_away": {{
+        "goals_avg": 1.2, "goals_last_5": [2,1,0,2,1],
+        "xg": 1.3, "possession": 45, "form": "WWDWL",
+        "key_players": "Benzema (F) 6g, Modric (M) 3a, Ramos (D) FIT",
+        "injuries": "Ninguna crítica",
+        "shots_on_target": 3, "corners": 4
+      }},
       "parlays": {{
-        "ultra_conservador": {{"picks": 1, "odds": 1.75, "prob": 75}},
-        "conservador": {{"picks": 2, "odds": 3.5, "prob": 55}},
-        "balanceado": {{"picks": 3, "odds": 6.3, "prob": 40}},
-        "riesgoso": {{"picks": 4, "odds": 20.0, "prob": 18}}
+        "ultra_conservador": {{"picks": 1, "odds": 1.75, "prob": 75, "reason": "stats 30 capas"}},
+        "conservador": {{"picks": 2, "odds": 3.5, "prob": 55, "reason": "stats 30 capas"}},
+        "balanceado": {{"picks": 3, "odds": 6.3, "prob": 40, "reason": "stats 30 capas"}},
+        "riesgoso": {{"picks": 4, "odds": 20.0, "prob": 18, "reason": "stats 30 capas"}}
       }}
     }}
   ],
   "stats_combinadas": {{
-    "goles_totales_promedio": 2.8,
+    "goles_promedio": 2.8,
     "posesion_promedio": 52,
     "xg_promedio": 1.6,
-    "jugadores_destacados": ["nombre1 (goals/assists)", "nombre2 (defensa)", "nombre3 (velocidad)"],
-    "lesiones_notables": ["jugador A (team)", "jugador B (team)"],
-    "tendencias_generales": "análisis de qué está pasando hoy en todos los partidos",
-    "factores_clave_dia": "clima, fatiga, motivación, arbitros designados"
+    "jugadores_destacados": [
+      "Messi (Barcelona) - 5 goles en últimos 5",
+      "Benzema (Real Madrid) - 6 goles en últimos 5",
+      "Modric (Real Madrid) - 3 asists"
+    ],
+    "lesiones_notables": [
+      "Piqué (Barcelona) - muscular",
+      "Alba (Barcelona) - tobillo",
+      "Sergio Ramos - EN DUDA"
+    ],
+    "tendencias_generales": "Análisis de forma, motivación, y dinámicas generales del día",
+    "factores_clave": "Clima, descanso, árbitros asignados, cambios tácticos"
   }},
   "parlays_combinados": {{
-    "ultra_conservador": {{"picks": [...], "odds": 0.0, "prob": 75, "reason": "máxima seguridad con picks de varios partidos"}},
-    "conservador": {{"picks": [...], "odds": 0.0, "prob": 55, "reason": "riesgo bajo, valor comprobado"}},
-    "balanceado": {{"picks": [...], "odds": 0.0, "prob": 40, "reason": "equilibrio riesgo-recompensa"}},
-    "riesgoso": {{"picks": [...], "odds": 0.0, "prob": 18, "reason": "máximo valor, ineficiencias PlayDouit"}}
+    "ultra_conservador": {{"picks": ["Messi gol", "Benzema gol"], "odds": 3.2, "prob": 75, "reason": "máxima seguridad"}},
+    "conservador": {{"picks": ["Barcelona gana", "Messi gol", "+2.5 goles"], "odds": 5.5, "prob": 55, "reason": "riesgo bajo"}},
+    "balanceado": {{"picks": ["Barcelona gana", "Real Madrid gana", "Messi gol", "Benzema gol"], "odds": 12.0, "prob": 40, "reason": "equilibrio"}},
+    "riesgoso": {{"picks": ["Barcelona 2+ goles", "Real Madrid 2+ goles", "Messi 2+ goles", "Benzema 2+ goles"], "odds": 28.0, "prob": 18, "reason": "máximo valor"}}
   }}
 }}"""
