@@ -352,7 +352,7 @@ async function startAnalysis() {
       var res = await fetch('/multi-analyze', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ matches: matches, date: dateStr, raw_queries: queries })
+        body: JSON.stringify({ matches: matches, date: dateStr, raw_queries: queries, sport: window.currentSport || 'Futbol' })
       });
       var data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -382,7 +382,7 @@ async function startAnalysis() {
     const res = await fetch('/analyze', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({query})
+      body: JSON.stringify({query, sport: window.currentSport || 'Futbol'})
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error del servidor');

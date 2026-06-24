@@ -13,9 +13,41 @@ function setSport(sport) {
   document.querySelectorAll('.snav').forEach(btn => btn.classList.remove('active'));
   if (event && event.target) event.target.classList.add('active');
 
+  // Actualizar el header para mostrar deporte seleccionado
+  const header = document.querySelector('.analysis-header') ||
+                 document.querySelector('.search-header') ||
+                 document.querySelector('.header');
+
+  if (header) {
+    let sportEmoji = {
+      'Futbol': '⚽',
+      'Americano': '🏈',
+      'Basquet': '🏀',
+      'Beisbol': '⚾',
+      'Tenis': '🎾',
+      'MMA / UFC': '🥊',
+      'Hockey': '🏒'
+    }[sport] || '🎯';
+
+    // Actualizar el texto visible
+    document.querySelectorAll('.sport-label, .current-sport, h2, h3').forEach(el => {
+      if (el.textContent.includes('Que partido') || el.textContent.includes('analizar')) {
+        el.textContent = `${sportEmoji} ${sport} - ¿Qué partido quieres analizar?`;
+      }
+    });
+  }
+
+  // Agregar deporte al input si existe
+  const searchInput = document.getElementById('searchInput') ||
+                      document.getElementById('queryInput') ||
+                      document.querySelector('input[placeholder*="partido"]');
+
+  if (searchInput && searchInput.value === '') {
+    searchInput.placeholder = `Ej: Team A vs Team B (${sport})`;
+  }
+
   console.log(`✅ Deporte cambió a: ${sport}`);
-  showNotification(`🏆 Deporte: ${sport}`);
-  // NO RECARGAR - mantener sesión
+  showNotification(`🎯 Analizando: ${sport}`);
 }
 
 // ==================== MÚLTIPLES PARTIDOS ====================
