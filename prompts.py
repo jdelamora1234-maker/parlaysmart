@@ -100,15 +100,9 @@ Genera SOLO los 4 parlays (ultra_conservador, conservador, balanceado, riesgoso)
 }}"""
 
 def build_analysis_prompt(team_a, team_b, sport, competition, date_str, context="", query=""):
-    return f"""PARTIDO: {team_a} vs {team_b}
-DEPORTE: {sport} | COMPETICION: {competition}
-{f'CONTEXTO: {context}' if context else ''}
+    return f"""PARTIDO: {team_a} vs {team_b} en {competition}
 
-INSTRUCCIONES:
-- Analiza qué equipo gana, probabilidad, valor, 4 parlays (conservador/balanceado/riesgoso/ultra)
-- Responde SOLO JSON válido, SIN markdown, SIN ```
-
-Responde UNICAMENTE con JSON:
+Devuelve UNICAMENTE este JSON (sin markdown):
 
 {{
   "match_info": {{
@@ -118,20 +112,34 @@ Responde UNICAMENTE con JSON:
     "competition": "{competition}",
     "date": "{date_str}"
   }},
-  "stats_comparison": [
-    {{"metric": "Ball possession %", "team_a": 0.0, "team_b": 0.0}},
-    {{"metric": "Expected goals (xG)", "team_a": 0.0, "team_b": 0.0}},
-    {{"metric": "Big chances", "team_a": 0, "team_b": 0}},
-    {{"metric": "Total shots", "team_a": 0, "team_b": 0}},
-    {{"metric": "Shots on target", "team_a": 0, "team_b": 0}},
-    {{"metric": "Goalkeeper saves", "team_a": 0, "team_b": 0}},
-    {{"metric": "Corner kicks", "team_a": 0, "team_b": 0}},
-    {{"metric": "Fouls committed", "team_a": 0, "team_b": 0}},
-    {{"metric": "Pass accuracy %", "team_a": 0.0, "team_b": 0.0}},
-    {{"metric": "Tackles", "team_a": 0, "team_b": 0}},
-    {{"metric": "Interceptions", "team_a": 0, "team_b": 0}},
-    {{"metric": "Offsides", "team_a": 0, "team_b": 0}}
-  ],
+  "prediction": {{
+    "winner": "team_a/draw/team_b",
+    "probability": 0.65,
+    "confidence": 8,
+    "reasoning": "Análisis breve"
+  }},
+  "parlays": {{
+    "ultra_conservador": {{
+      "selections": [{{"pick": "descripción", "odds": 1.75, "reason": "razón"}}],
+      "combined_odds": 1.75,
+      "win_probability": 70
+    }},
+    "conservador": {{
+      "selections": [{{"pick": "pick1", "odds": 1.85}}, {{"pick": "pick2", "odds": 1.90}}],
+      "combined_odds": 3.5,
+      "win_probability": 55
+    }},
+    "balanceado": {{
+      "selections": [{{"pick": "pick1", "odds": 1.85}}, {{"pick": "pick2", "odds": 1.90}}, {{"pick": "pick3", "odds": 1.80}}],
+      "combined_odds": 6.3,
+      "win_probability": 40
+    }},
+    "riesgoso": {{
+      "selections": [{{"pick": "pick1", "odds": 2.5}}, {{"pick": "pick2", "odds": 2.2}}, {{"pick": "pick3", "odds": 1.95}}, {{"pick": "pick4", "odds": 1.75}}],
+      "combined_odds": 20.0,
+      "win_probability": 18
+    }}
+  }},
   "stats_team_a": {{
     "goals_scored_avg": 0.0,
     "goals_conceded_avg": 0.0,
