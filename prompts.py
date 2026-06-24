@@ -127,20 +127,23 @@ Genera SOLO los 4 parlays (ultra_conservador, conservador, balanceado, riesgoso)
 }}"""
 
 def build_analysis_prompt(team_a, team_b, sport, competition, date_str, context="", query=""):
-    return f"""{team_a} vs {team_b}. {competition}.
+    return f"""ANÁLISIS DE 30 CAPAS: {team_a} vs {team_b}. {competition}.
 {context}
 
-JSON con 4 parlays + estadísticas:
+Profundidad: Capas 1-30 (stats, jugadores, tácticas, psicología, fatiga, clima, mercado, modelos, lesiones, árbitro, etc).
+
+JSON con 4 parlays profundos + estadísticas:
 {{
   "winner": "team_a/draw/team_b",
   "confidence": 8,
-  "team_a_stats": {{"goals_avg": 1.5, "possession": 55, "xg": 1.8, "key_players": "nombres"}},
-  "team_b_stats": {{"goals_avg": 1.2, "possession": 45, "xg": 1.3, "key_players": "nombres"}},
+  "predicted_score": "2-1",
+  "team_a_stats": {{"goals_avg": 1.5, "possession": 55, "xg": 1.8, "key_players": "nombres", "injuries": "lesiones"}},
+  "team_b_stats": {{"goals_avg": 1.2, "possession": 45, "xg": 1.3, "key_players": "nombres", "injuries": "lesiones"}},
   "parlays": {{
-    "ultra_conservador": {{"picks": 1, "odds": 1.75, "prob": 75, "reason": "máxima seguridad"}},
-    "conservador": {{"picks": 2, "odds": 3.5, "prob": 55, "reason": "riesgo bajo"}},
-    "balanceado": {{"picks": 3, "odds": 6.3, "prob": 40, "reason": "equilibrio"}},
-    "riesgoso": {{"picks": 4, "odds": 20.0, "prob": 18, "reason": "máximo valor"}}
+    "ultra_conservador": {{"picks": 1, "odds": 1.75, "prob": 75, "reason": "análisis 30 capas: máxima seguridad"}},
+    "conservador": {{"picks": 2, "odds": 3.5, "prob": 55, "reason": "análisis 30 capas: riesgo bajo"}},
+    "balanceado": {{"picks": 3, "odds": 6.3, "prob": 40, "reason": "análisis 30 capas: equilibrio"}},
+    "riesgoso": {{"picks": 4, "odds": 20.0, "prob": 18, "reason": "análisis 30 capas: máximo valor"}}
   }},
   "lambda_home": 1.4,
   "lambda_away": 1.1,
