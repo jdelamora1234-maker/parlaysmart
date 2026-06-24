@@ -208,6 +208,8 @@ Devuelve SOLO JSON (sin markdown):
       "team_away": "...",
       "winner": "home/draw/away",
       "confidence": 8,
+      "predicted_score": "2-1",
+      "score_probability": 15,
       "stats_home": {{"goals_avg": 1.5, "xg": 1.8, "posesion": 55, "key_players": "nombres"}},
       "stats_away": {{"goals_avg": 1.2, "xg": 1.3, "posesion": 45, "key_players": "nombres"}},
       "parlays": {{
