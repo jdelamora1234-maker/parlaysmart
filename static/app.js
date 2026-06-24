@@ -46,13 +46,18 @@ function doLogin() {
         if (err) err.textContent = '';
 
         // Guardar estado de admin
-        const isAdmin = res.d.is_admin || false;
+        const isAdmin = res.d.is_admin === true;
         localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
         window.isAdmin = isAdmin;
 
+        console.log('Login success:', { isAdmin, is_admin: res.d.is_admin });
+
         // Solo mostrar botón Admin si es admin
         var adminBtn = document.getElementById('adminBtn');
-        if (adminBtn) adminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+        if (adminBtn) {
+          adminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+          console.log('Admin button display:', adminBtn.style.display);
+        }
       } else {
         if (err) err.textContent = res.d.error || 'Codigo incorrecto o expirado';
         if (inp) inp.value = '';
