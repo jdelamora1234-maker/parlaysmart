@@ -115,6 +115,26 @@ def admin_delete_pin(code):
     return jsonify({"ok": True})
 
 
+@app.route("/admin/keys/<key_hash>/renew", methods=["POST"])
+@require_admin
+def admin_renew_key(key_hash):
+    """Renovar una key existente - extiende su fecha de expiración"""
+    from models import key_manager
+
+    body = request.get_json(force=True)
+    duration = body.get("duration", "1w")
+
+    if duration not in ['1h', '1d', '3d', '1w', '1m', 'permanent']:
+        return jsonify({"error": "Duración inválida"}), 400
+
+    success, result = key_manager.renew_key(key_hash, duration)
+
+    if not success:
+        return jsonify({"error": result}), 400
+
+    return jsonify({"ok": True, "renewed": result})
+
+
 @app.route("/logout", methods=["POST"])
 def logout():
     session.clear()

@@ -216,6 +216,64 @@ function closeAdminPanel() {
   if (panel) panel.style.display = 'none';
 }
 
+// ==================== RENOVACIÓN DE KEYS ====================
+function renewKey(keyHash) {
+  const duration = prompt('Renovar por:\n1h = 1 hora\n1d = 1 día\n3d = 3 días\n1w = 1 semana (default)\n1m = 1 mes\npermanent = Sin expiración\n\n¿Por cuánto tiempo?', '1w');
+
+  if (!duration || !['1h', '1d', '3d', '1w', '1m', 'permanent'].includes(duration)) {
+    showNotification('❌ Duración inválida');
+    return;
+  }
+
+  fetch(`/admin/keys/${keyHash}/renew`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ duration })
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        showNotification(`✅ Key renovada por ${duration}`);
+        loadAdminKeys();
+      } else {
+        showNotification(`❌ Error: ${data.error}`);
+      }
+    })
+    .catch(e => showNotification(`❌ Error: ${e.message}`));
+}
+
+function loadAdminKeys() {
+  fetch('/admin/keys', { credentials: 'include' })
+    .then(r => r.json())
+    .then(keys => {
+      const container = document.getElementById('adminKeysList') || document.getElementById('adminPinList');
+      if (!container) return;
+
+      if (!keys || keys.length === 0) {
+        container.innerHTML = '<div class="empty-state">Sin keys generadas aun.</div>';
+        return;
+      }
+
+      container.innerHTML = keys.map(k => `
+        <div class="admin-key-item">
+          <div class="key-info">
+            <div class="key-user">${k.user || 'N/A'}</div>
+            <div class="key-meta">
+              Duration: ${k.duration} | Expires: ${k.expires_in || 'N/A'}
+              <br>
+              Status: <span class="status-${k.status}">${k.status}</span>
+            </div>
+          </div>
+          <div class="key-actions">
+            <button class="btn-renew" onclick="renewKey('${k.id}')">🔄 Renovar</button>
+          </div>
+        </div>
+      `).join('');
+    })
+    .catch(e => console.warn('Error loading keys:', e));
+}
+
 function showView(viewId) {
   document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
   const view = document.getElementById(viewId);

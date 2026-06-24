@@ -254,5 +254,37 @@ class KeyManager:
                         ('revoked', key_hash))
             conn.commit()
 
+    def renew_key(self, key_hash, duration='1w'):
+        """Renovar una key - extiende su fecha de expiración"""
+        duration_map = {
+            '1h': timedelta(hours=1),
+            '1d': timedelta(days=1),
+            '3d': timedelta(days=3),
+            '1w': timedelta(weeks=1),
+            '1m': timedelta(days=30),
+            'permanent': timedelta(days=365*100)
+        }
+
+        new_expires_at = datetime.now() + duration_map.get(duration, timedelta(weeks=1))
+
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.execute("""
+            SELECT id FROM api_keys WHERE key_hash = ?
+            """, (key_hash,))
+
+            row = cursor.fetchone()
+            if not row:
+                return False, "Key no encontrada"
+
+            conn.execute("""
+            UPDATE api_keys
+            SET expires_at = ?, status = 'active', duration = ?
+            WHERE key_hash = ?
+            """, (new_expires_at, duration, key_hash))
+
+            conn.commit()
+
+        return True, {"expires": new_expires_at.isoformat(), "duration": duration}
+
 # Instancia global
 key_manager = KeyManager()
