@@ -183,15 +183,24 @@ def build_multi_analysis_prompt(matches_list, date_str, raw_queries=None):
         match_lines.append(f"{i}. {qt}")
     matches_text = "\n".join(match_lines)
 
-    return f"""Analiza {n} partidos y genera parlays combinados.
+    return f"""Analiza {n} partidos y genera 4 PARLAYS COMBINADOS con los mejores picks.
 
 Partidos:
 {matches_text}
 
-Para cada partido: winner, confidence, 4 parlays simples.
-Luego genera parlays combinados usando los mejores picks.
+IMPORTANTE: Genera 4 parlays combinados (ultra_conservador, conservador, balanceado, riesgoso) usando picks de TODOS los partidos.
 
 Devuelve SOLO JSON (sin markdown):
+{{
+  "dia_resumen": "análisis de motivaciones y factores del día",
+  "matches": [...]
+  "parlays_combinados": {{
+    "ultra_conservador": {{"picks": [...], "odds": 0.0, "prob": 75}},
+    "conservador": {{"picks": [...], "odds": 0.0, "prob": 55}},
+    "balanceado": {{"picks": [...], "odds": 0.0, "prob": 40}},
+    "riesgoso": {{"picks": [...], "odds": 0.0, "prob": 18}}
+  }}
+}}
 
 BUSQUEDA OBLIGATORIA POR PARTIDO:
 - Estadisticas avanzadas: xG, xGA, PPDA (FBref, Sofascore, Understat)
