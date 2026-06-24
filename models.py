@@ -104,3 +104,155 @@ def combine_predictions(poisson, monte_carlo_res, elo=None):
 def prob_to_odds(prob_pct):
     if prob_pct <= 0: return 999.0
     return round(100 / prob_pct, 2)
+
+# ==================== KEY MANAGER (BASE DE DATOS) ====================
+
+import sqlite3
+import hashlib
+import secrets
+from datetime import datetime, timedelta
+from pathlib import Path
+
+DB_PATH = Path(__file__).parent / "parlaysmart.db"
+
+class KeyManager:
+    """Gestor de API Keys con expiración variable"""
+
+    def __init__(self, db_path=DB_PATH):
+        self.db_path = db_path
+        self.init_db()
+
+    def init_db(self):
+        """Inicializar base de datos"""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("""
+            CREATE TABLE IF NOT EXISTS api_keys (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                key_hash TEXT UNIQUE NOT NULL,
+                user_name TEXT NOT NULL,
+                duration TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                expires_at TIMESTAMP NOT NULL,
+                requests_made INTEGER DEFAULT 0,
+                requests_limit INTEGER,
+                status TEXT DEFAULT 'active',
+                last_used TIMESTAMP
+            )
+            """)
+
+            conn.execute("""
+            CREATE TABLE IF NOT EXISTS key_usage (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                key_hash TEXT NOT NULL,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                endpoint TEXT,
+                FOREIGN KEY(key_hash) REFERENCES api_keys(key_hash)
+            )
+            """)
+
+            conn.commit()
+
+    def create_key(self, user_name, duration='1d', requests_limit=None):
+        """Crear nueva key. Duration: '1h', '1d', '3d', '1w', '1m', 'permanent'"""
+        raw_key = secrets.token_urlsafe(32)
+        key_hash = hashlib.sha256(raw_key.encode()).hexdigest()
+
+        now = datetime.now()
+        duration_map = {
+            '1h': timedelta(hours=1),
+            '1d': timedelta(days=1),
+            '3d': timedelta(days=3),
+            '1w': timedelta(weeks=1),
+            '1m': timedelta(days=30),
+            'permanent': timedelta(days=365*100)
+        }
+
+        expires_at = now + duration_map.get(duration, timedelta(days=1))
+
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("""
+            INSERT INTO api_keys
+            (key_hash, user_name, duration, expires_at, requests_limit)
+            VALUES (?, ?, ?, ?, ?)
+            """, (key_hash, user_name, duration, expires_at, requests_limit))
+            conn.commit()
+
+        return raw_key, key_hash, expires_at
+
+    def validate_key(self, key):
+        """Validar que la key sea válida y no haya expirado"""
+        key_hash = hashlib.sha256(key.encode()).hexdigest()
+
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.execute("""
+            SELECT id, user_name, status, expires_at, requests_made, requests_limit
+            FROM api_keys
+            WHERE key_hash = ?
+            """, (key_hash,))
+
+            row = cursor.fetchone()
+
+            if not row:
+                return False, "Key no encontrada"
+
+            id, user_name, status, expires_at, requests_made, requests_limit = row
+
+            if status != 'active':
+                return False, "Key inactiva"
+
+            if datetime.fromisoformat(expires_at) < datetime.now():
+                conn.execute("UPDATE api_keys SET status = ? WHERE id = ?", ('expired', id))
+                conn.commit()
+                return False, "Key expirada"
+
+            if requests_limit and requests_made >= requests_limit:
+                return False, "Límite de requests alcanzado"
+
+            conn.execute("UPDATE api_keys SET last_used = ? WHERE id = ?",
+                        (datetime.now(), id))
+            conn.execute("""
+            INSERT INTO key_usage (key_hash, endpoint)
+            VALUES (?, ?)
+            """, (key_hash, 'api'))
+            conn.execute("UPDATE api_keys SET requests_made = requests_made + 1 WHERE id = ?", (id,))
+            conn.commit()
+
+            return True, {"user": user_name, "expires": expires_at}
+
+    def get_all_keys(self):
+        """Obtener todas las keys (ADMIN ONLY)"""
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.execute("""
+            SELECT id, user_name, duration, created_at, expires_at, status, requests_made, requests_limit
+            FROM api_keys
+            ORDER BY created_at DESC
+            """)
+
+            keys = []
+            for row in cursor.fetchall():
+                id, user, duration, created, expires, status, requests, limit = row
+                is_expired = datetime.fromisoformat(expires) < datetime.now()
+                actual_status = 'expired' if is_expired else status
+
+                keys.append({
+                    'id': id,
+                    'user': user,
+                    'duration': duration,
+                    'created': created,
+                    'expires': expires,
+                    'status': actual_status,
+                    'requests': f"{requests}/{limit}" if limit else requests,
+                    'expires_in': str(datetime.fromisoformat(expires) - datetime.now()).split('.')[0]
+                })
+
+            return keys
+
+    def revoke_key(self, key_hash):
+        """Revocar una key"""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("UPDATE api_keys SET status = ? WHERE key_hash = ?",
+                        ('revoked', key_hash))
+            conn.commit()
+
+# Instancia global
+key_manager = KeyManager()
