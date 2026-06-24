@@ -122,7 +122,7 @@ input, textarea { font-family: inherit; }
 .feat-text { font-size: 12px; color: var(--text3); line-height: 1.4; }
 
 /* ---- LOADING ---- */
-.loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - var(--topbar-h) - var(--sportnav-h)); padding: 40px 24px; gap: 28px; }
+.loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - var(--topbar-h) - var(--sportnav-h)); padding: 40px 24px; gap: 28px; width: 100%; margin: 0 auto; }
 .loading-logo { font-size: 32px; font-weight: 900; letter-spacing: 4px; color: var(--red); }
 .loading-sub { font-size: 15px; color: var(--text2); }
 .loading-steps-wrap { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 2px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
@@ -813,7 +813,7 @@ input, textarea { font-family: inherit; }
 .rp-label { font-size:12px; color:var(--text3); padding:0 16px 10px; line-height:1.3; }
 
 /* Loading views */
-.loading-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - var(--topbar-h) - var(--sportnav-h)); padding:40px 24px; gap:24px; }
+.loading-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - var(--topbar-h) - var(--sportnav-h)); padding:40px 24px; gap:24px; width:100%; margin:0 auto; }
 .loading-spinner { width:48px; height:48px; border:4px solid var(--border); border-top-color:var(--red); border-radius:50%; animation:spin .9s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 .loading-title { font-size:20px; font-weight:800; color:var(--text); letter-spacing:1px; }
