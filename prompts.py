@@ -123,22 +123,9 @@ JSON con 4 parlays + estadísticas:
 
 
 def build_today_matches_prompt(date_str):
-    return f"""Busca con Google Search todos los partidos de futbol confirmados para el dia {date_str} en las competiciones mas importantes.
+    return f"""Partidos de fútbol para {date_str}. Incluye: Mundial, Copa América, Champions, La Liga, Premier, Liga MX, etc.
 
-IMPORTANTE: La hora debe ser en hora de Mexico (UTC-6, zona Centro, permanente). Mexico ya no cambia horario.
-
-BUSCAR OBLIGATORIAMENTE:
-- Mundial FIFA 2026 (si esta activo) — todos los partidos del dia, con grupo y sede
-- UEFA Champions League / Europa League / Conference League
-- Premier League, La Liga, Bundesliga, Serie A, Ligue 1
-- Liga MX (Apertura/Clausura), Copa MX
-- MLS
-- Copa Libertadores, Copa Sudamericana
-- Copa America, CONCACAF Champions
-
-Solo incluye ligas con partidos reales ese dia. Si no hay partidos de una liga, no la incluyas.
-
-Devuelve UNICAMENTE este JSON valido (sin markdown, sin texto extra):
+Devuelve SOLO JSON (sin markdown):
 
 {{
   "date": "{date_str}",
