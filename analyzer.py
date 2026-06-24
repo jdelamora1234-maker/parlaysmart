@@ -254,7 +254,7 @@ def analyze_multi_matches(matches_list, date_str):
         eh = float(m.get("elo_home", 1700))
         ea = float(m.get("elo_away", 1650))
         pois = poisson_probabilities(lh, la)
-        mc   = monte_carlo(lh, la, n=50000)
+        mc   = monte_carlo(lh, la, n=30000)
         elo  = elo_expected(eh, ea)
         comb = combine_predictions(pois, mc, elo)
         m["math_models"] = {
