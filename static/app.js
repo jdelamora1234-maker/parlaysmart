@@ -2846,7 +2846,32 @@ function adminCopyPin() {
 }
 
 function adminDeletePin(code) {
-  fetch('/admin/pins/' + code, { method: 'DELETE', credentials: 'include' })
-    .then(function() { adminLoadPins(); });
+  if (!confirm('¿Eliminar PIN ' + code + '?')) return;
+
+  const isAdmin = localStorage.getItem('isAdmin') === 'true' || window.isAdmin;
+
+  fetch('/admin/pins/' + code, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: { 'X-Admin': isAdmin ? 'true' : 'false' }
+  })
+    .then(function(r) {
+      console.log('Delete PIN response status:', r.status);
+      return r.json().then(function(data) {
+        return { ok: r.ok, data: data };
+      });
+    })
+    .then(function(res) {
+      console.log('Delete PIN response:', res);
+      if (res.ok) {
+        adminLoadPins();
+      } else {
+        alert('Error: ' + (res.data.error || 'Error desconocido'));
+      }
+    })
+    .catch(function(err) {
+      console.error('Delete PIN error:', err);
+      alert('Error: ' + err.message);
+    });
 }
 
