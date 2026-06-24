@@ -194,12 +194,7 @@ def analyze_match(team_a, team_b, sport, competition, date_str, context="", quer
 
 
 def fetch_today_matches(date_str):
-    ck = _cache_key("today_matches", date_str)
-    cached = _cache_get(ck)
-    if cached:
-        return cached
-
-    # 1. Gemini primero (datos actuales: Mundial 2026, temporada en curso)
+    # Gemini primero (datos actuales: Mundial 2026, temporada en curso)
     try:
         prompt = build_today_matches_prompt(date_str)
         raw_text = _call_gemini(prompt, max_tokens=4000)
@@ -217,7 +212,6 @@ def fetch_today_matches(date_str):
                     total += 1
             data["total"] = total
             data["source"] = "gemini"
-            _cache_set(ck, data)
             return data
     except Exception as e:
         raise ValueError(f"No se pudieron obtener los partidos: {str(e)}")
