@@ -171,7 +171,7 @@ def analyze_match(team_a, team_b, sport, competition, date_str, context="", quer
     elo_a    = float(data.get("elo_away", 1700))
 
     poisson  = poisson_probabilities(lam_home, lam_away)
-    mc       = monte_carlo(lam_home, lam_away, n=50000)
+    mc       = monte_carlo(lam_home, lam_away, n=50000)  # Individual analysis: max precision
     elo      = elo_expected(elo_h, elo_a)
     combined = combine_predictions(poisson, mc, elo)
 
@@ -254,7 +254,7 @@ def analyze_multi_matches(matches_list, date_str):
         eh = float(m.get("elo_home", 1700))
         ea = float(m.get("elo_away", 1650))
         pois = poisson_probabilities(lh, la)
-        mc   = monte_carlo(lh, la, n=30000)
+        mc   = monte_carlo(lh, la, n=30000)  # Multi-analysis: optimized for speed
         elo  = elo_expected(eh, ea)
         comb = combine_predictions(pois, mc, elo)
         m["math_models"] = {
