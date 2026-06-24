@@ -98,7 +98,7 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
                     "tools": [{"googleSearch": {}}]
                 }
 
-                resp = requests.post(url, json=payload, timeout=45)
+                resp = requests.post(url, json=payload, timeout=60)  # Increased from 45 to 60 seconds
 
                 if resp.status_code != 200:
                     error_body = resp.text[:500]
@@ -254,7 +254,7 @@ Busca y extrae estos datos específicos:
 
     # 4️⃣ GEMINI HACE ANÁLISIS PROFUNDO CON DATOS DE GOOGLE
     print(f"[ANALYZE] Enviando a Gemini con datos de Google para análisis 30 capas...")
-    raw_text = _call_gemini(prompt, max_tokens=16000)
+    raw_text = _call_gemini(prompt, max_tokens=8000  # Reduced to prevent timeouts and overload errors)
 
     data = _extract_json(raw_text)
     if not data:
@@ -459,7 +459,7 @@ def analyze_multi_matches(matches_list, date_str):
     print(f"[MULTI-ANALYZE] Buscando datos de Google para {len(matches_list)} partidos...")
     prompt = build_multi_analysis_prompt(matches_list, date_str, google_context)
     print(f"[MULTI-ANALYZE] Enviando a Gemini para análisis 30 capas x {len(matches_list)} partidos...")
-    raw_text = _call_gemini(prompt, max_tokens=16000)
+    raw_text = _call_gemini(prompt, max_tokens=8000  # Reduced to prevent timeouts and overload errors)
 
     data = _extract_json(raw_text)
     if not data:
