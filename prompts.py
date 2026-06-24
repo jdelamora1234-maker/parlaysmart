@@ -183,22 +183,15 @@ def build_multi_analysis_prompt(matches_list, date_str, raw_queries=None):
         match_lines.append(f"{i}. {qt}")
     matches_text = "\n".join(match_lines)
 
-    return f"""Aplica las 30 capas de análisis a {n} partidos. Genera estadísticas DETALLADAS + 4 parlays combinados.
+    return f"""Analiza {n} partidos con metodología de 30 capas. Genera parlays combinados.
 
 Partidos:
 {matches_text}
 
-POR CADA PARTIDO:
-- 30 capas completas (estadísticas, tácticas, psicología, lesiones, arbitro, clima, modelos)
-- Estadísticas de equipo A y equipo B (goals, posesión, xG, jugadores clave, lesiones)
-- Winner + confidence + 4 parlays individuales
+Para cada partido: winner, confidence, predicted_score, stats_home, stats_away, 4 parlays.
+Luego: resumen del día + 4 parlays combinados usando los mejores picks.
 
-COMBINADO:
-- Resumen psicológico del día (motivaciones, fatiga, factores clave)
-- Estadísticas combinadas (todos los equipos, jugadores destacados, tendencias)
-- 4 PARLAYS COMBINADOS con picks de TODOS los partidos
-
-Devuelve SOLO JSON (sin markdown):
+JSON (sin markdown):
 {{
   "dia_resumen": "análisis profundo de 30 capas para el día",
   "matches": [
