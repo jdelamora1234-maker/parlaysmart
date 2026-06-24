@@ -692,3 +692,332 @@ PARLAY RIESGOSO (Estrategia: Ineficiencias Mercado)
 **Documento generado:** Junio 24, 2026  
 **Versión documento:** 1.0  
 **Estado:** ✅ Completo y actualizado
+
+---
+
+# 🔬 ESPECIFICACIÓN TÉCNICA COMPLETA: 30 CAPAS v2.1
+
+## **PROTOCOLO ALGORÍTMICO DE PREDICCIÓN DEPORTIVA Y EXPLOTACIÓN DE MERCADOS**
+
+### **ROL Y SINOPSIS OPERATIVA**
+
+ParlaySmart funciona como una **Inteligencia Artificial Cuantitativa Avanzada**, diseñada bajo el patrón de fondos de cobertura deportiva profesionales (Starlizard / Smartodds). 
+
+**Objetivo Core:**
+- Deconstruir partidos de fútbol en **variables matemáticas puras** (física, biometría, teoría de juegos, mercado)
+- Generar **True Odds propias** vs. casas de apuestas
+- Detectar **ineficiencias ocultas** en Playdoit y mercados locales
+- Garantizar **EV+ positivo** a largo plazo mediante análisis de 30 capas
+
+**Motor de ejecución:** ThreadPoolExecutor paralelizado que reduce análisis masivos a **3 segundos** (antes: 30 segundos)
+
+---
+
+## **ARQUITECTURA DE DATOS: 30 CAPAS MICRO-ANÁLISIS**
+
+### **CAPAS 1-10: ANÁLISIS DURO (Variables Científicas Puras)**
+
+**CAPA 1: Estadísticas del Equipo (Rendimiento Colectivo)**
+- V/E/D ratio en últimos 90, 180, 365 días
+- xG vs Goles Reales, xGA vs GA (desviación estocástica)
+- Precisión de pases por zonas (Defensiva, Media, Ofensiva)
+- Rachas móviles de 5, 10, 20 partidos (pendiente de rendimiento)
+- Factor casa/fuera: caída % de xG y posesión como visitante
+- Kilómetros acumulados en viajes terrestres/aéreos (último mes)
+
+**CAPA 2: Estadísticas Individuales (Micro-Data Profiling)**
+- Goles, Asistencias por 90min con ponderación de dificultad rival
+- xG individual, xA, Dribble% (último tercio)
+- Módulo portero: PSxG - GA (Goles Evitados Esperados)
+- Riesgo disciplinario progresivo (tarjetas, distancia a suspensión)
+- Historial lesiones 24 meses (clasificación: blando, articular, ósea)
+- Índice sobrecarga muscular (min sin rotación)
+
+**CAPA 3: Alineaciones y Táctica (Geometría de Sistemas)**
+- Formación base + mutaciones funcionales (ej 4-3-3 → 3-2-4-1)
+- PPDA (Pases por Acción Defensiva) = intensidad de presión
+- Altura media línea defensiva en metros vs propia portería
+- Modelado Voronoi (x,y) para compacidad y recuperación
+- Especialización en balón parado (goles vía Set Pieces)
+- Ratio dependencia MVP (% goles/asists jugador franquicia)
+
+**CAPA 4: Entrenadores (Filosofía y Reacción)**
+- Años PD, títulos, efectividad histórica (Puntos/Partidos)
+- Récord directo vs rival y vs director técnico oponente
+- In-Game Management: puntos ganados tras ir perdiendo MT
+- Minuto promedio primer cambio táctico e impacto suplentes
+- Estabilidad en el puesto (probabilidad despido)
+- Relación vestuario (fricción pública vs respaldo)
+
+**CAPA 5: Aspecto Psicológico (Presión Emocional)**
+- Matriz de motivación extrema:
+  - Partido por título: x1.5
+  - Final copa: x1.5
+  - Clásico regional: x1.4
+  - Por permanencia/descenso: x1.3
+  - Clasificación continental: x1.2
+  - Temporada regular: x1.0
+- Resiliencia post-gol en contra (Índice Colapso Psicológico primeros 15min)
+- Rendimiento post-racha >3 derrotas
+- Presencia de líderes con experiencia en alta presión
+- Factor revancha (vs equipo que eliminó/goleó antes)
+- Carga mediática: nivel crítica prensa + abucheos afición + ultimátums junta
+
+**CAPA 6: Noticias y Ambiente (Análisis Sentimiento NLP)**
+- Salud financiera: deudas salariales, retrasos premios
+- Conflictos convivencia: peleas entrenamiento, declaraciones polémicas
+- Disruptores mercado: rumores transferencias jugadores clave, cambios directiva
+- Protestas/boicots de afición radical
+
+**CAPA 7: Redes Sociales (Rastreo Conductual)**
+- Publicaciones jugadores clave 48h antes: concentración vs ocio/vacaciones
+- Fugas información: mensajes motivacionales, bajas no anunciadas
+- Conflictos digitales: comentarios polémicos, actividad horarios descanso (insomnio/indisciplina)
+
+**CAPA 8: Entorno Familiar y Personal (Eventos Críticos)**
+- Disruptores negativos: fallecimiento familiar, divorcio mediático, escándalos legales
+- Disruptores positivos: nacimiento hijo (motivación +, descanso -48h)
+- Estabilidad sentimental
+
+**CAPA 9: Fatiga y Calendario (Congestión Logística)**
+- Horas exactas desde último silbatazo (Regla 72h para glucógeno)
+- Partidos en últimos 21 días (congestión)
+- Presencia competencias simultáneas (Liga + Copa Int + Copa Dom)
+- KM vuelos transcontinentales (últimas 72h)
+- Horas desfase horario (Jet Lag)
+
+**CAPA 10: Árbitro (Módulo Disciplinario Quirúrgico)**
+- Promedio amarillas/rojas por partido (temporada actual + histórico)
+- Minutos críticos primera amonestación
+- Tasa penaltis/partido y correcciones VAR
+- Sesgo acústico (favor local por presión público)
+- Historial resultados ambos equipos bajo este colegiado
+
+---
+
+### **CAPAS 11-20: CONTEXTO (Ambiente + Mercado + Modelos)**
+
+**CAPA 11: Clima (Física Atmosférica)**
+- Temperatura exacta °C (hora partido)
+- Humedad relativa % (>75% = deshidratación, -15% aeróbico PT)
+- Velocidad viento km/h (>25 km/h desestabiliza largos/libres)
+- Microclima según arquitectura estadio
+- Precipitación/nieve (terrenos rápidos pero pesados, ideal "bajas")
+- Índice calidad aire (esmog/contaminación respiratoria)
+
+**CAPA 12: Geografía (Ventaja Territorial)**
+- Factor altitud (msnm): >2000 msnm = balón +10% velocidad, -resistencia aire
+  - Hipoxia en visitante desde minuto 60
+  - Ejemplo: Toluca, CDMX, La Paz, Quito
+- Distancia traslado visitante (base → hotel concentración)
+- Cruce zonas horarias intra-país vs continental
+
+**CAPA 13: Estadio (Arquitectura y Presión)**
+- Capacidad y ocupación % (lleno = presión acústica mayor)
+- Proximidad gradas a terreno (pista atletismo disipa presión)
+- Tipo césped: Natural pesado vs Híbrido vs Sintético
+  - Sintético: ↑velocidad esférico, ↑fatiga articular tobillo visitantes
+- Dimensiones cancha (Largo x Ancho metros)
+- Historial efectividad local en ese inmueble
+
+**CAPA 14: Importancia del Torneo (Jerarquía Competitiva)**
+- Nivel 5: Finales (Mundial, Champions, Libertadores) → intensidad defensiva máxima
+- Nivel 4: Eliminatorias ida/vuelta (Cuartos, Semis) → gestión marcador agregado
+- Nivel 3: Fase grupos / Liga regular → ritmo estándar
+- Nivel 2: Pretemporada / Copas menores → experimentación táctica
+- Nivel 1: Amistosos → rotación masiva, intensidad <50%
+
+**CAPA 15: Mercado de Apuestas (Inteligencia Financiera Reversa)**
+- Flujo dinero nominal en Betfair Exchange + mercados asiáticos
+- Dropping Odds (caída >10% sin noticias = Smart Money filtraciones internas)
+- Inversión favoritismo: mercado contradice estadística histórica
+- Sesgo aficionado: público infla favoritos locales (América, Chivas, Real, Barça)
+
+**CAPA 16: Datos Avanzados (Métricas 3ª Generación)**
+- xA (Asistencias Esperadas por ubicación pase)
+- Big Chances Created (ocasiones mano-a-mano portero)
+- Progressive Passes/Carries (avanzan ≥10m a meta rival)
+- Acciones defensivas exitosas en campo propio
+- Intercepciones por minuto posesión rival
+- Remates bloqueados defensores centrales
+- Goals Prevented (PSxG - goles reales)
+
+**CAPA 17: Inteligencia Artificial y Modelos Predictivos**
+- Regresión Logística: P(resultado) basada en variables continuas
+- **Distribución Poisson:** P(0,1,2,3,4+ goles) según fuerza ataque/defensa
+- **Elo Rating Progresivo:** puntuación real actualizada partido-a-partido
+- **Simulación Monte Carlo:** 50,000 iteraciones cruzando 30 variables → distribución True Odds
+- Redes Neuronales: patrones correlación NO lineales ocultos
+
+**CAPA 18: Variables Ocultas (Fricciones Vestuario)**
+- Cohesión grupo: divisiones por nacionalidad/idioma/egos
+- Celos profesionales: disparidades salariales extremas
+- Apatía renovación: jugadores clave que rechazaron ofertas
+- Estructura bonos: primas extraordinarias goles específicos
+- Fricción capitanes ↔ directiva (promesas incumplidas)
+
+**CAPA 19: Influencia Externa (Política y Corporativo)**
+- Presión institucional: auditorías FFP, deudas administrativas
+- Intereses patrocinadores: alineación obligatoria mediáticos
+- Transiciones administrativas: venta fondo, cambios directiva
+
+**CAPA 20: Factores Raros pero Reales**
+- Logística concentración: ruidos nocturnos afición rival, calidad alimentación
+- Alteración implementos: cambio balón oficial, síntesis nueva marca
+- Presencia/ausencia afición visitante (sanciones)
+
+---
+
+### **CAPAS 21-30: INTELIGENCIA AVANZADA (Síntesis + Explotación)**
+
+**CAPA 21: Análisis de Comportamiento (Dinámica Gestual)**
+- Lenguaje corporal colectivo durante calentamientos
+- Gestos frustración/reproches entre compañeros
+- Nivel agresividad controlada en entrenamientos abiertos
+- Dinámica celebraciones: unidas vs aisladas/individuales
+
+**CAPA 22: Datos Biométricos y Carga Interna**
+- Frecuencia cardíaca promedio/máxima (chalecos GPS)
+- Velocidad máxima sprint (km/h) vs histórico
+- **ACWR (Acute:Chronic Workload Ratio):** carga semanal vs mensual
+  - Si ACWR >1.5 → penalización -15% lambda T2
+- Índice fatiga: CK (creatina quinasa), HRV (variabilidad FC)
+- Calidad sueño (anillos inteligentes)
+
+**CAPA 23: Factores Económicos y Salud Financiera**
+- Valoración mercado plantilla (algoritmos financieros deportivos)
+- Brecha económica neta A vs B
+- Necesidad urgente clasificación continental (evitar quiebra)
+- Adeudos salariales / premios extraordinarios
+
+**CAPA 24: Comunidad e Internet (Minería Sentimiento)**
+- Monitoreo hilos Reddit, foros afición, canales privados
+- Filtraciones prensa: alineaciones ensayadas a puerta cerrada
+- Podcasts análisis táctico exponiendo fallas mecánicas
+
+**CAPA 25: Explotación Ineficiencias Playdoit**
+- **Arbitraje de Latencia (Speed Edge):** API vivo Playdoit vs Pinnacle/Singapur
+  - Alerta evento crítico (gol, tarjeta roja, lesión)
+  - Si latencia >3s → oportunidad congelamiento cuota
+- **Props Individuales:** "Tiros jugador", "Pases jugador" basados en promedios estáticos
+  - Cruzar dimensiones campo (Capa 13) + PPDA rival (Capa 3)
+  - Si jugador promedia 40 pases vs bloque retraído = EV+ >20% seguro
+
+**CAPA 26: Value Bets Seguras (Sesgos Ignorados Casa)**
+- **Inversión Sesgo Aficionado:** público infla favoritos → rival sobreprecio
+- **Correlación Cruzada Inversa:** equipo gana por efectividad clínica pura pero concede corners masivos
+  - Playdoit asume linealmente: favorito = menos corners
+  - Romper: líneas mal puestas por correlación automática
+
+**CAPA 27: Ingeniería Inversa Mercado (El Oráculo)**
+- **Opening Odds:** sintetizan 95% información pública disponible
+- **Análisis Margen Overround:** comisión oculta Playdoit por mercado
+  - ↓overround = certeza corporativa absoluta
+  - ↑overround = incertidumbre, zona cazar errores cálculo
+
+**CAPA 28: El Filtro Anti-Limbo Live de Playdoit**
+- Retraso procesamiento ticket deliberado (hasta 10s) en volatilidad alta
+- **Índice Peligro Inminente:** ubicación balón + tasas aceleración último tercio
+- Si jugada peligrosa → retraso fuerza aceptación automática sin rechazos backend
+
+**CAPA 29: Cuentas Espejo y Límites Corporativos**
+- **Kelly Criterion Fraccionado:** eludir Risk Profiling automático Playdoit
+- Distribuir capital óptimo a través de:
+  - Apuestas combinadas correlacionadas
+  - Fraccionamiento multi-cuenta espejo
+- Evitar limitaciones cuenta (cap $50-$100 pesos)
+
+**CAPA 30: El Algoritmo VAR Stoppage Delay**
+- Si revisión VAR >180s → penalización -20% al ritmo de juego (Pace)
+  - Caída capacidades aeróbicas inmediatas T+10min
+  - Enfriamiento muscular estocástico + caída glucógeno activo
+- Explotar mercados live corners/goles corto plazo post-VAR
+
+---
+
+## **FORMATO DE PARLAYS ESPECIALIZADOS (Output ParlaySmart)**
+
+Cada análisis genera 4 parlays únicos explotando fallos específicos de Playdoit:
+
+### **🟢 ULTRA CONSERVADOR (Estrategia: Defensiva Pura)**
+- **Picks:** 1 único
+- **Probabilidad:** ~78% simulada
+- **Kelly Fraction:** 0.25 (máxima seguridad)
+- **Markets:** Doble Oportunidad, Money Line directo, BTTS
+- **Exploit:** Sesgo público infravalúa favoritos locales
+- **Instrucción:** NO combinar picks
+
+### **🔵 CONSERVADOR (Estrategia: Combinación Defensiva)**
+- **Picks:** 2 combinados
+- **Probabilidad:** ~62% simulada
+- **Kelly Fraction:** 0.50
+- **Markets:** Gana Favorito + Under 2.5 (defensas fuertes)
+- **Exploit:** Playdoit infravalúa compactación colectiva bloques tácticos
+- **Instrucción:** Combina eventos defensivos
+
+### **🟡 BALANCEADO (Estrategia: Correlación Cruzada)**
+- **Picks:** 3 independientes
+- **Probabilidad:** ~41% simulada
+- **Kelly Fraction:** 0.75
+- **Markets:** Goles + Tarjetas + Córners (PPDA desajustes)
+- **Exploit:** Si rival PPDA alta (presión baja) → sobre-córners que Playdoit calcula con promedios estáticos
+- **Instrucción:** Cruza variables estructurales independientes
+
+### **🔴 RIESGOSO / BOMBA (Estrategia: Ineficiencias Mercado)**
+- **Picks:** 3+ combinados
+- **Probabilidad:** ~22% simulada
+- **Kelly Fraction:** 1.0 (máxima ganancia exponencial)
+- **Markets:** Props Minutales, Tarjetas Rojas, Eventos Baja Frecuencia
+- **Exploit:** Retrasos cuota vivo, historial árbitro estricto, API delay vs Pinnacle
+- **Instrucción:** EV+ altamente positivo, evento raro validado
+
+---
+
+## **PROTOCOLO DE INTERCEPCIÓN EN TIEMPO REAL**
+
+Backend implementa sistema intercepción APIs Sofascore (clonando cabeceras humanas: User-Agent, Origin: sofascore.com, Referer) para alimentar IndexedDB local y renderizar en PWA sin alterar diseño Tailwind:
+
+1. **Attacking Momentum (Gráfica Presión):** Barras bilaterales espejo midiendo intensidad ofensiva minuto-a-minuto (pases último tercio + tiros)
+
+2. **Live Player Ratings (1-10):** Actualización en vivo según acciones (pases clave ↑, pérdidas ↓)
+
+3. **Live Match Stats:** Barras % animadas Posesión, Tiros, Ataques Peligrosos (fetch asíncrono sin reload)
+
+4. **Cash-Out Predictivo:** Si parlay va ganando min 75 → corre 50k iteraciones tiempo restante con ACWR + Chaos Index
+   - Si riesgo gol contra >40% + casa ofrece >65% premio
+   - Alerta roja parpadeante: "⚠️ ALERTA COBRO ANTICIPADO: Playdoit ofrece pago óptimo. Riesgo colapso: [%]. ¡Asegura ganancias ahora!"
+
+---
+
+## **PROTOCOLO DE SALIDA (REPORTE ESTRUCTURA)**
+
+Cada análisis procesa 50,000 iteraciones Monte Carlo de las 30 variables generando reporte estructurado:
+
+1. **MODELADO DESEQUILIBRIO MICRO-TÁCTICO**
+   - Zonas campo donde perfiles choquen geométrica/físicamente
+   - Debilidades jugadores específicos
+   - Notas simuladas 1-10 (estilo Sofascore)
+
+2. **SIMULACIÓN DINÁMICA ESTADOS DE JUEGO (ATTACKING MOMENTUM CHRONOLOGY)**
+   - Cronología proyectada gráfica presión en bloques tiempo:
+     - a) Empate continuo
+     - b) Gol local temprano
+     - c) Gol visitante temprano
+
+3. **CONSOLA DIAGNÓSTICO CUANTITATIVO**
+   - Tabla indicadores críticos con métricas numéricas
+
+4. **ALERTAS CONTINGENCIA EN VIVO (LIVE BETTING TRIGGERS)**
+   - 3 gatillos específicos basados en eventos directo
+   - Para entrar mercado live si condiciones iniciales varían
+   - Activación Cash-Out predictivo
+
+---
+
+**FIN ESPECIFICACIÓN TÉCNICA 30 CAPAS v2.1**
+
+---
+
+**Documento actualizado:** Junio 24, 2026  
+**Versión documento:** 2.0  
+**Estado:** ✅ Completo con especificación v2.1 integrada
