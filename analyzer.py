@@ -267,15 +267,22 @@ def analyze_multi_matches(matches_list, date_str):
     if not data:
         raise ValueError("No se pudo generar el analisis multi-partido")
 
-    parlays_dict = data.get("parlays", {})
+    # Handle both "parlays" and "parlays_combinados" keys
+    parlays_dict = data.get("parlays_combinados") or data.get("parlays") or {}
     if isinstance(parlays_dict, dict):
         for key, parlay in parlays_dict.items():
-            sels = parlay.get("selections", [])
-            if sels:
-                combined = 1.0
-                for s in sels:
-                    combined *= float(s.get("odds", 1.50))
-                parlay["combined_odds"] = round(combined, 2)
+            if isinstance(parlay, dict):
+                sels = parlay.get("selections", [])
+                if sels and isinstance(sels, list):
+                    combined = 1.0
+                    for s in sels:
+                        if isinstance(s, dict):
+                            combined *= float(s.get("odds", 1.50))
+                    parlay["combined_odds"] = round(combined, 2)
+
+    # Store combined parlays in data
+    if parlays_dict:
+        data["parlays_combinados"] = parlays_dict
 
     for m in data.get("matches", []):
         lh = float(m.get("lambda_home", 1.4))
