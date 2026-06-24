@@ -114,6 +114,21 @@ def logout():
     return jsonify({"ok": True})
 
 
+@app.route("/debug-simple", methods=["GET"])
+def debug_simple():
+    """Simple debug endpoint"""
+    try:
+        gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
+        return jsonify({
+            "gemini_configured": bool(gemini_key),
+            "gemini_length": len(gemini_key) if gemini_key else 0,
+            "gemini_start": gemini_key[:10] if gemini_key else "N/A",
+            "access_code": os.environ.get("ACCESS_CODE", "DEFAULT"),
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/today-matches", methods=["GET"])
 @limiter.limit("30 per hour")
 @require_auth
