@@ -1,33 +1,49 @@
-SYSTEM_PROMPT = """Eres experto en análisis de partidos de fútbol con 30 capas de profundidad:
+SYSTEM_PROMPT = """ERES EXPERTO EN ANÁLISIS DE PARTIDOS DE FÚTBOL - 30 CAPAS ESTRUCTURADAS
 
-CAPAS 1-10 (DATOS DUROS):
-1. Estadísticas: xG, posesión, PPDA, corners, forma
-2. Jugadores: métricas por 90min, lesiones, suspensiones
-3. Táctica: formación, dependencia de estrella
-4. Entrenador: historial vs rival, decisiones in-game
-5. Psicología: motivación, resiliencia, factor revancha
-6. Noticias: conflictos, rumores, estado vestuario
-7. Redes sociales: señales de jugadores clave
-8. Entorno familiar: factores emocionales
-9. Fatiga: descanso neto, congestión calendario
-10. Árbitro: historial con equipos, sesgo
+TU TAREA: Analizar CADA CAPA explícitamente. No asumir. No saltear. PROFUNDIDAD REAL.
 
-CAPAS 11-20 (CONTEXTO):
-11. Clima: temperatura, humedad, viento
-12. Geografía: altitud, distancia viaje
-13. Estadio: tipo de césped, ocupación
-14. Importancia: nivel del partido
-15. Mercado: dropping odds, smart money
-16. Métricas avanzadas: xA, Big Chances, Progressive Passes
-17. Modelos: Poisson, Elo, Monte Carlo
-18. Variables ocultas: clanes internos, apatía contractual
-19. Factores políticos: presión patrocinadores
-20. Factores raros: cambios de balón, intoxicación alimentaria
+═══ CAPAS 1-10: ANÁLISIS DURO (STATS + EQUIPOS) ═══
+1️⃣ ESTADÍSTICAS OFENSIVAS: xG, goles/partido, posesión %, tiros al arco
+2️⃣ ESTADÍSTICAS DEFENSIVAS: xGA, goles contra, presión, interceptos
+3️⃣ JUGADORES CLAVE: Top scorer + asists, lesionados críticos, suspendidos
+4️⃣ FORMACIÓN TÁCTICA: Sistema (4-3-3, 3-5-2, etc), dependencia de estrella (Messi/Mbappé?)
+5️⃣ ENTRENADOR: Historial HEAD-TO-HEAD vs rival, cambios tácticos recientes, decisiones in-game
+6️⃣ PSICOLOGÍA: Motivación (playoff/descenso?), resiliencia, revancha vs rival
+7️⃣ NOTICIAS: Conflictos vestuario, rumores transferencia, estado emocional del equipo
+8️⃣ PRESIÓN MEDIÁTICA: Expectativas, apoyo de afición, presión en jugadores
+9️⃣ FATIGA: Descanso desde último partido (3 días? 1 día?), calendario congestionado
+🔟 ÁRBITRO: Historial con los equipos, sesgo (favorece local 60%?), tarjetas/decisiones
 
-CAPAS 21-30 (INTELIGENCIA):
-21-30: Comportamiento gestual, biometría, salud financiera, community digital, ineficiencias, value bets, ingeniería inversa, anti-limbo live, stake management, efecto VAR
+═══ CAPAS 11-20: CONTEXTO (AMBIENTE + MERCADO) ═══
+1️⃣1️⃣ CLIMA: Temperatura, humedad, viento (favorece posesión o contraataque?)
+1️⃣2️⃣ GEOGRAFÍA: Altitud (favorece equipo local?), viaje largo (jet lag?)
+1️⃣3️⃣ ESTADIO: Césped (favorece juego aéreo?), ocupación (local juega mejor en casa)
+1️⃣4️⃣ IMPORTANCIA: ¿Playoff? ¿Descenso? ¿Duda? (afecta mentalidad)
+1️⃣5️⃣ MERCADO: Odds actuales, smart money (donde va dinero inteligente?), dropping odds
+1️⃣6️⃣ MÉTRICAS AVANZADAS: xA (asists esperados), Big Chances, Progressive Passes
+1️⃣7️⃣ MODELOS MATEMÁTICOS: Poisson (goles esperados), ELO (rating), Monte Carlo (simulaciones)
+1️⃣8️⃣ HEAD-TO-HEAD: Últimos 10 enfrentamientos (ganar %, promedio goles)
+1️⃣9️⃣ FORMA CASA/FUERA: ¿Equipo juega diferente en casa? (varianza % ganancia)
+2️⃣0️⃣ VARIABLES OCULTAS: Clanes internos, motivación contractual, amistades/rivalidades
 
-INSTRUCCIÓN FINAL: Analiza con profundidad REAL. Retorna SOLO JSON válido (sin markdown)."""
+═══ CAPAS 21-30: INTELIGENCIA AVANZADA ═══
+2️⃣1️⃣ ANÁLISIS GESTUAL: Lenguaje corporal, confianza de jugadores
+2️⃣2️⃣ BIOMETRÍA: Ritmo cardíaco en presión, fatiga física visible
+2️⃣3️⃣ SALUD FINANCIERA: ¿Equipo en crisis económica? (rinde peor)
+2️⃣4️⃣ COMMUNITY DIGITAL: Sentimiento en redes (confianza/miedo?)
+2️⃣5️⃣ INEFICIENCIAS: Mercado valora mal algo? (OPORTUNIDAD)
+2️⃣6️⃣ VALUE BETS: Odd 2.5 pero probabilidad 70% = VALUE positivo
+2️⃣7️⃣ INGENIERÍA INVERSA: Si mercado da 60%, ¿qué sabe que yo no?
+2️⃣8️⃣ FACTOR VAR: ¿Equipo favoritismo con árbitro?
+2️⃣9️⃣ STAKE MANAGEMENT: Kelly Criterion para dimensionar apuesta
+3️⃣0️⃣ SÍNTESIS FINAL: Combina TODAS las capas en SCORE ÚNICO
+
+INSTRUCCIÓN CRÍTICA:
+- Analiza CADA capa. SÍ o NO. Dato específico. No "probablemente" o "quizás"
+- Para cada capa: [DATO] → [IMPACTO EN RESULTADO] → [% CONFIANZA]
+- Los 4 parlays son RESULTADO directo de capas 21-30, no independientes
+- JSON con análisis, NO markdown
+"""
 
 
 def build_single_parlay_prompt(parlay_type, match_analysis_json):
@@ -127,62 +143,136 @@ Genera SOLO los 4 parlays (ultra_conservador, conservador, balanceado, riesgoso)
 }}"""
 
 def build_analysis_prompt(team_a, team_b, sport, competition, date_str, context="", query=""):
-    return f"""ANÁLISIS EXHAUSTIVO 30 CAPAS: {team_a} vs {team_b} ({competition})
+    return f"""╔════════════════════════════════════════════════════════════╗
+║ ANÁLISIS 30 CAPAS: {team_a} vs {team_b} ({competition})
+║ Profundidad: MÁXIMA | Estructura: 30 CAPAS EXPLÍCITAS
+╚════════════════════════════════════════════════════════════╝
 
-CRÍTICO: INCLUIR SIEMPRE estas estadísticas:
-1. ESTADÍSTICAS DE EQUIPO (ambos):
-   - goals_avg, goals_for_last_5, goals_against_last_5
-   - possession, xg, xga
-   - shots_on_target, corners, fouls
-   - form (últimos 5 partidos: W/D/L)
-
-2. ESTADÍSTICAS INDIVIDUALES - KEY PLAYERS de cada equipo:
-   - Nombre jugador, posición, goles/asists/tarjetas
-   - Lesiones CRÍTICAS (jugadores ausentes)
-   - Cambios tácticos recientes
-   - Jugadores en mal estado físico
-
-3. CONTEXTO TÁCTICO:
-   - Formación de cada equipo
-   - Dependencia de estrella
-   - Cambios de entrenador reciente
-
+DATOS CONTEXTO (para referencias):
 {context}
 
-RETORNA SOLO JSON (sin markdown):
+═══════════════════════════════════════════════════════════
+ANÁLISIS ESTRUCTURA: APLICA LAS 30 CAPAS SISTEMÁTICAMENTE
+═══════════════════════════════════════════════════════════
+
+PASO 1: ANALIZA CAPAS 1-10 (DATOS DUROS)
+├─ Capa 1️⃣: Stats ofensivas ({team_a} vs {team_b}): xG, goles/partido, posesión
+├─ Capa 2️⃣: Stats defensivas: xGA, goles contra, presión
+├─ Capa 3️⃣: Jugadores clave: Top scorer + lesiones críticas
+├─ Capa 4️⃣: Formación táctica: Sistema + dependencia de estrella
+├─ Capa 5️⃣: Entrenador: H2H vs rival + cambios recientes
+├─ Capa 6️⃣: Psicología: Motivación + resiliencia
+├─ Capa 7️⃣: Noticias: Conflictos, rumores, estado vestuario
+├─ Capa 8️⃣: Presión mediática: Expectativas + apoyo afición
+├─ Capa 9️⃣: Fatiga: Descanso desde último partido
+└─ Capa 🔟: Árbitro: Historial + sesgo
+
+PASO 2: ANALIZA CAPAS 11-20 (CONTEXTO)
+├─ Capa 1️⃣1️⃣: Clima: Temperatura + impacto en juego
+├─ Capa 1️⃣2️⃣: Geografía: Altitud + viaje + jet lag
+├─ Capa 1️⃣3️⃣: Estadio: Césped + ocupación + ventaja local
+├─ Capa 1️⃣4️⃣: Importancia: Playoff/descenso/amistoso
+├─ Capa 1️⃣5️⃣: Mercado: Odds actuales + smart money
+├─ Capa 1️⃣6️⃣: Métricas avanzadas: xA + Big Chances + Progressive Passes
+├─ Capa 1️⃣7️⃣: Modelos: Poisson + ELO + Monte Carlo
+├─ Capa 1️⃣8️⃣: Head-to-head: Últimos 10 + estadísticas H2H
+├─ Capa 1️⃣9️⃣: Forma casa/fuera: % ganancia casa vs fuera
+└─ Capa 2️⃣0️⃣: Variables ocultas: Clanes + motivación contractual
+
+PASO 3: ANALIZA CAPAS 21-30 (SÍNTESIS INTELIGENTE)
+├─ Capa 2️⃣1️⃣: Comportamiento gestual: Confianza de jugadores
+├─ Capa 2️⃣2️⃣: Biometría: Fatiga visible + estado físico
+├─ Capa 2️⃣3️⃣: Salud financiera: ¿Equipo en crisis?
+├─ Capa 2️⃣4️⃣: Community digital: Sentimiento en redes
+├─ Capa 2️⃣5️⃣: Ineficiencias mercado: ¿Valor no visto?
+├─ Capa 2️⃣6️⃣: VALUE BETS: Odd vs probabilidad real
+├─ Capa 2️⃣7️⃣: Ingeniería inversa: ¿Qué sabe mercado?
+├─ Capa 2️⃣8️⃣: Factor VAR: Favoritismo arbitral
+├─ Capa 2️⃣9️⃣: Stake management: Kelly Criterion
+└─ Capa 3️⃣0️⃣: SÍNTESIS: Combina TODO → SCORE FINAL
+
+═══════════════════════════════════════════════════════════
+ESTRUCTURA JSON (refleja cada capa)
+═══════════════════════════════════════════════════════════
+
 {{
-  "winner": "team_a/draw/team_b",
-  "confidence": 8,
-  "predicted_score": "2-1",
+  "analisis_30_capas": {{
+    "capas_1_10": {{
+      "stats_ofensivas": {{"xg_home": 1.8, "goles_avg_home": 1.5, "posesion": 55}},
+      "stats_defensivas": {{"xga_home": 0.9, "goles_contra_avg": 0.5}},
+      "jugadores_clave": "Messi (5g, 2a) LESIÓN MUSCULAR",
+      "formacion": "4-3-3, depende de Messi",
+      "entrenador_h2h": "Gana 60% vs este rival",
+      "psicologia": "Motivación ALTA (playoff)",
+      "noticias": "Conflicto menor, resuelto",
+      "presion_mediatica": "ALTA - expectativas máximas",
+      "fatiga": "Descansó 3 días - ÓPTIMO",
+      "arbitro": "Sesgo local 55%"
+    }},
+    "capas_11_20": {{
+      "clima": "28°C, favorece posesión",
+      "geografia": "500m, favorece local",
+      "estadio": "Césped bueno, ocupación 80%",
+      "importancia": "PLAYOFF - máxima presión",
+      "mercado": "Odd 2.2, smart money en local",
+      "metricas_avanzadas": "xA 1.2, Big Chances 3",
+      "modelos": "Poisson: 70% local, ELO: 65%, MC: 68%",
+      "h2h": "Últimos 10: 6W-2D-2L, 2.1 goles/partido",
+      "forma_casa_fuera": "Casa: 75% ganancia, Fuera: 45%",
+      "variables_ocultas": "Motivación contractual ALTA"
+    }},
+    "capas_21_30": {{
+      "comportamiento": "Confianza ALTA en ambos",
+      "biometria": "Fatiga baja, estado físico ÓPTIMO",
+      "salud_financiera": "Estable",
+      "community": "Sentimiento POSITIVO en redes",
+      "ineficiencias": "Mercado subestima a local",
+      "value_bets": "Odd 2.2 vs probabilidad 70% = VALUE +22%",
+      "ingenieria_inversa": "Mercado protege al visitante (dinero inteligente allá)",
+      "var": "Árbitro favor local, pero equilibrado",
+      "kelly": "Stake 3-5% del presupuesto",
+      "sintesis_final": "CONFIANZA 85% - Local gana"
+    }}
+  }},
+  "prediccion_final": {{
+    "winner": "team_a",
+    "confidence": 85,
+    "predicted_score": "2-1",
+    "razon": "30 capas: stats superiores + H2H + psicología + valor mercado"
+  }},
   "team_a_stats": {{
     "goals_avg": 1.5, "goals_for_last_5": [1,2,1,0,3], "goals_against_last_5": [0,1,1,2,0],
-    "possession": 55, "xg": 1.8, "xga": 0.9,
-    "shots_on_target": 4, "corners": 5, "fouls": 12,
-    "form": "WDWLL",
-    "key_players": "Messi (F) 5g, Busquets (M) 2a, Piqué (D) - LESIONADO",
-    "injuries": "Piqué (muscular), Alba (tobillo)",
-    "tactical_notes": "4-3-3, depende de Messi"
+    "possession": 55, "xg": 1.8, "xga": 0.9, "shots_on_target": 4, "corners": 5,
+    "form": "WDWLL", "key_players": "Messi (F) 5g, Busquets (M) 2a",
+    "injuries": "Piqué (muscular)", "tactical_notes": "4-3-3, depende Messi",
+    "h2h_vs_rival": "6W-2D-2L, 2.1 goals/partido", "forma_casa": "75%"
   }},
   "team_b_stats": {{
     "goals_avg": 1.2, "goals_for_last_5": [2,1,0,2,1], "goals_against_last_5": [1,0,2,1,1],
-    "possession": 45, "xg": 1.3, "xga": 1.1,
-    "shots_on_target": 3, "corners": 4, "fouls": 14,
-    "form": "WWDWL",
-    "key_players": "Benzema (F) 6g, Modric (M) 3a, Ramos (D) - FIT",
-    "injuries": "Ninguna crítica",
-    "tactical_notes": "4-2-3-1, estable"
+    "possession": 45, "xg": 1.3, "xga": 1.1, "shots_on_target": 3, "corners": 4,
+    "form": "WWDWL", "key_players": "Benzema (F) 6g, Modric (M) 3a",
+    "injuries": "Ninguna", "tactical_notes": "4-2-3-1",
+    "h2h_vs_rival": "2W-2D-6L vs equipo_a", "forma_fuera": "45%"
   }},
   "parlays": {{
-    "ultra_conservador": {{"picks": 1, "odds": 1.75, "prob": 75, "reason": "analysis"}},
-    "conservador": {{"picks": 2, "odds": 3.5, "prob": 55, "reason": "analysis"}},
-    "balanceado": {{"picks": 3, "odds": 6.3, "prob": 40, "reason": "analysis"}},
-    "riesgoso": {{"picks": 4, "odds": 20.0, "prob": 18, "reason": "analysis"}}
+    "ultra_conservador": {{"picks": ["Local gana (70% + value)", "Under 2.5 (equilibrio)"], "odds": 1.75, "prob": 75, "ev": "+22%", "reason": "Capas 26-30: Valor + confianza + Kelly"}},
+    "conservador": {{"picks": ["Local gana", "Over 1.5", "Gol en primer tiempo"], "odds": 3.5, "prob": 55, "ev": "+15%", "reason": "Capas 1-10 + psicología"}},
+    "balanceado": {{"picks": ["Local gana", "Messi asist", "Benzema gol", "Over 2.5"], "odds": 6.3, "prob": 40, "ev": "+8%", "reason": "Capas 3-5 jugadores clave"}},
+    "riesgoso": {{"picks": ["Local 2+ goles", "Messi gol", "Benzema gol", "Ambos anotan"], "odds": 20.0, "prob": 18, "ev": "+5%", "reason": "Capas 21-30 ineficiencias mercado"}}
   }},
-  "lambda_home": 1.4,
-  "lambda_away": 1.1,
-  "elo_home": 1700,
-  "elo_away": 1650
-}}"""
+  "modelos_matematicos": {{
+    "poisson": {{"home_win": 68, "draw": 20, "away_win": 12, "goles_esperados_home": 1.8, "goles_esperados_away": 1.1}},
+    "elo": {{"home_rating": 1750, "away_rating": 1600, "home_win_prob": 65, "elo_diff": 150}},
+    "monte_carlo": {{"simulaciones": 50000, "home_win": 70, "draw": 18, "away_win": 12, "over_2_5": 62, "top_score": "2-1"}}
+  }}
+}}
+
+CRÍTICO:
+- CADA parlays viene de análisis específico de capas
+- NO son independientes - están correlacionados por capas 21-30
+- EV (Expected Value) DEBE ser positivo
+- Kelly Criterion es stake management (capa 29)
+"""
 
 
 def build_today_matches_prompt(date_str):
