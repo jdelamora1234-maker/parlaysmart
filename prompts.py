@@ -180,14 +180,18 @@ def build_multi_analysis_prompt(matches_list, date_str, raw_queries=None):
     match_lines = []
     for i, m in enumerate(matches_list, 1):
         qt = m.get("query_text") or f"{m.get('team_home','')} vs {m.get('team_away','')}"
-        league = m.get("league_name", "")
-        time_mx = m.get("time_mx", "")
-        match_lines.append(f"  Partido {i}: {qt}" + (f" | {league}" if league else "") + (f" | {time_mx}" if time_mx else ""))
+        match_lines.append(f"{i}. {qt}")
     matches_text = "\n".join(match_lines)
 
-    return f"""Analiza en profundidad los siguientes {n} partidos del {date_str} aplicando el protocolo de 30 capas para cada uno:
+    return f"""Analiza {n} partidos y genera parlays combinados.
 
+Partidos:
 {matches_text}
+
+Para cada partido: winner, confidence, 4 parlays simples.
+Luego genera parlays combinados usando los mejores picks.
+
+Devuelve SOLO JSON (sin markdown):
 
 BUSQUEDA OBLIGATORIA POR PARTIDO:
 - Estadisticas avanzadas: xG, xGA, PPDA (FBref, Sofascore, Understat)
