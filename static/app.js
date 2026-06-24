@@ -2764,14 +2764,26 @@ function closeAdminPanel() {
 function adminLoadPins() {
   var list = document.getElementById('adminPinList');
   list.innerHTML = '<div class="admin-loading">Cargando...</div>';
-  fetch('/admin/pins', { credentials: 'include' })
-    .then(function(r) { return r.json(); })
-    .then(function(pins) {
-      if (!pins.length) {
+
+  const isAdmin = localStorage.getItem('isAdmin') === 'true' || window.isAdmin;
+
+  fetch('/admin/pins', {
+    credentials: 'include',
+    headers: { 'X-Admin': isAdmin ? 'true' : 'false' }
+  })
+    .then(function(r) {
+      console.log('Load PINs response status:', r.status);
+      return r.json().then(function(data) {
+        return { ok: r.ok, data: data };
+      });
+    })
+    .then(function(res) {
+      console.log('Load PINs response:', res);
+      if (!res.ok || !res.data || !res.data.length) {
         list.innerHTML = '<div class="admin-empty">No hay PINs activos</div>';
         return;
       }
-      list.innerHTML = pins.map(function(p) {
+      list.innerHTML = res.data.map(function(p) {
         return '<div class="admin-pin-row">' +
           '<span class="admin-pin-num">' + p.code + '</span>' +
           '<span class="admin-pin-dur">' + p.label + '</span>' +
@@ -2780,23 +2792,47 @@ function adminLoadPins() {
         '</div>';
       }).join('');
     })
-    .catch(function() {
+    .catch(function(err) {
+      console.error('Load PINs error:', err);
       list.innerHTML = '<div class="admin-empty">Error al cargar</div>';
     });
 }
 
 function adminCreatePin(days) {
+  const isAdmin = localStorage.getItem('isAdmin') === 'true' || window.isAdmin;
+  if (!isAdmin) {
+    alert('❌ Solo administradores pueden crear PINs');
+    return;
+  }
+
   fetch('/admin/pins', {
     method: 'POST',
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Admin': isAdmin ? 'true' : 'false'
+    },
     body: JSON.stringify({ days: days })
   })
-    .then(function(r) { return r.json(); })
-    .then(function(pin) {
-      document.getElementById('adminPinCode').textContent = pin.code;
-      document.getElementById('adminNewPin').style.display = 'flex';
-      adminLoadPins();
+    .then(function(r) {
+      console.log('Create PIN response status:', r.status);
+      return r.json().then(function(data) {
+        return { ok: r.ok, data: data };
+      });
+    })
+    .then(function(res) {
+      console.log('Create PIN response:', res);
+      if (res.ok) {
+        document.getElementById('adminPinCode').textContent = res.data.code;
+        document.getElementById('adminNewPin').style.display = 'flex';
+        adminLoadPins();
+      } else {
+        alert('Error: ' + (res.data.error || 'Error desconocido'));
+      }
+    })
+    .catch(function(err) {
+      console.error('Create PIN error:', err);
+      alert('Error: ' + err.message);
     });
 }
 

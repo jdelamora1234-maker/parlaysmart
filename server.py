@@ -83,7 +83,11 @@ def login():
 def require_admin(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        if not session.get("auth") or not session.get("is_admin"):
+        # Verificar sesión O header X-Admin
+        is_admin_session = session.get("is_admin") == True
+        is_admin_header = request.headers.get("X-Admin") == "true"
+
+        if not (is_admin_session or is_admin_header):
             return jsonify({"error": "No autorizado"}), 403
         return f(*args, **kwargs)
     return decorated
