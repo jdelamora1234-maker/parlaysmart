@@ -70,6 +70,18 @@ function doLogin() {
     });
 }
 
+function doLogout() {
+  fetch('/logout', { method: 'POST', credentials: 'include' })
+    .then(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+      showLogin();
+      var logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) logoutBtn.style.display = 'none';
+    })
+    .catch(err => console.error('Logout error:', err));
+}
+
 let analysisData = null;
 
 //  UTILS 
