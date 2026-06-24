@@ -183,22 +183,51 @@ def build_multi_analysis_prompt(matches_list, date_str, raw_queries=None):
         match_lines.append(f"{i}. {qt}")
     matches_text = "\n".join(match_lines)
 
-    return f"""Analiza {n} partidos y genera 4 PARLAYS COMBINADOS con los mejores picks.
+    return f"""Aplica las 30 capas de análisis a {n} partidos. Genera estadísticas DETALLADAS + 4 parlays combinados.
 
 Partidos:
 {matches_text}
 
-IMPORTANTE: Genera 4 parlays combinados (ultra_conservador, conservador, balanceado, riesgoso) usando picks de TODOS los partidos.
+POR CADA PARTIDO:
+- 30 capas completas (estadísticas, tácticas, psicología, lesiones, arbitro, clima, modelos)
+- Estadísticas de equipo A y equipo B (goals, posesión, xG, jugadores clave, lesiones)
+- Winner + confidence + 4 parlays individuales
+
+COMBINADO:
+- Resumen psicológico del día (motivaciones, fatiga, factores clave)
+- Estadísticas combinadas (todos los equipos, jugadores destacados, tendencias)
+- 4 PARLAYS COMBINADOS con picks de TODOS los partidos
 
 Devuelve SOLO JSON (sin markdown):
 {{
-  "dia_resumen": "análisis de motivaciones y factores del día",
-  "matches": [...]
+  "dia_resumen": "análisis profundo de 30 capas para el día",
+  "matches": [
+    {{
+      "id": "partido1",
+      "team_home": "...",
+      "team_away": "...",
+      "winner": "home/draw/away",
+      "confidence": 8,
+      "stats_home": {{"goals_avg": 1.5, "xg": 1.8, "posesion": 55, "key_players": "nombres"}},
+      "stats_away": {{"goals_avg": 1.2, "xg": 1.3, "posesion": 45, "key_players": "nombres"}},
+      "parlays": {{
+        "ultra_conservador": {{"picks": 1, "odds": 1.75, "prob": 75}},
+        "conservador": {{"picks": 2, "odds": 3.5, "prob": 55}},
+        "balanceado": {{"picks": 3, "odds": 6.3, "prob": 40}},
+        "riesgoso": {{"picks": 4, "odds": 20.0, "prob": 18}}
+      }}
+    }}
+  ],
+  "stats_combinadas": {{
+    "todos_equipos": "análisis de tendencias combinadas",
+    "jugadores_destacados": ["nombre1", "nombre2", "nombre3"],
+    "factores_clave": "clima, fatiga, motivación, arbitro"
+  }},
   "parlays_combinados": {{
-    "ultra_conservador": {{"picks": [...], "odds": 0.0, "prob": 75}},
-    "conservador": {{"picks": [...], "odds": 0.0, "prob": 55}},
-    "balanceado": {{"picks": [...], "odds": 0.0, "prob": 40}},
-    "riesgoso": {{"picks": [...], "odds": 0.0, "prob": 18}}
+    "ultra_conservador": {{"picks": [...], "odds": 0.0, "prob": 75, "reason": "máxima seguridad con picks de varios partidos"}},
+    "conservador": {{"picks": [...], "odds": 0.0, "prob": 55, "reason": "riesgo bajo, valor comprobado"}},
+    "balanceado": {{"picks": [...], "odds": 0.0, "prob": 40, "reason": "equilibrio riesgo-recompensa"}},
+    "riesgoso": {{"picks": [...], "odds": 0.0, "prob": 18, "reason": "máximo valor, ineficiencias PlayDouit"}}
   }}
 }}
 
