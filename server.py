@@ -134,11 +134,12 @@ def test_gemini_call():
     """Test Gemini API call"""
     try:
         from analyzer import _call_gemini
-        result = _call_gemini("Responde con JSON: {\"test\": \"ok\"}", max_tokens=100)
+        result = _call_gemini("Responde con JSON válido: {\"test\": \"ok\", \"message\": \"Hello\"}", max_tokens=8000)
         return jsonify({
             "status": "OK",
-            "result": result[:300],
-            "result_length": len(result)
+            "result": result[:500],
+            "result_length": len(result),
+            "full_result": result
         })
     except Exception as e:
         return jsonify({"error": str(e), "status": "ERROR"}), 500
