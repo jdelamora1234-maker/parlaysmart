@@ -202,24 +202,33 @@ def enrich_analysis_with_apis(analysis: dict, match_data: dict) -> dict:
 
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
-    # 1️⃣ BUSCAR EN GOOGLE CON SERPAPI (datos actuales)
-    from search import get_match_info, get_team_info, get_player_injuries
-
+    # 1️⃣ BÚSQUEDA OPTIMIZADA: Gemini Google Search es lo mejor (ya tiene búsqueda integrada)
+    print(f"[ANALYZE] ✅ Usando Gemini con Google Search integrado (más preciso que APIs externas)")
     google_search = ""
-    try:
-        print(f"[ANALYZE] Buscando en Google: {team_a} vs {team_b}")
-        match_info = get_match_info(team_a, team_b)
-        team_a_info = get_team_info(team_a)
-        team_b_info = get_team_info(team_b)
-        injuries_a = get_player_injuries(team_a)
-        injuries_b = get_player_injuries(team_b)
 
-        google_search = f"""INFORMACIÓN DE GOOGLE (ACTUAL):
-Partido: {team_a} vs {team_b}
-Fuentes: {match_info.get('source', 'N/A')} | {team_a_info.get('source', 'N/A')} | {injuries_a.get('source', 'N/A')}
+    # Dar contexto extra a Gemini sobre qué buscar
+    search_context = f"""
+Analiza este partido: {team_a} vs {team_b} en {competition}
+Fecha: {date_str}
+Deporte: {sport}
+
+Busca y extrae estos datos específicos:
+1. Últimos 5 partidos de cada equipo (resultados, goles)
+2. Lesiones confirmadas de jugadores clave
+3. Alineaciones probables y formación táctica
+4. Historial cara a cara (últimos 5 enfrentamientos)
+5. Condiciones del partido (clima, local/visitante)
+6. Momios de casas reconocidas (PlayDouit, Betano, 1xBet)
+7. Importancia del partido (torneo, posición en tabla)
+8. Factores psicológicos (racha, rivalidad, descanso)
 """
+    try:
+        print(f"[ANALYZE] Buscando datos precisos: {team_a} vs {team_b}")
+        # Gemini buscará automáticamente usando Google Search integrado
+        # No necesitamos SerpAPI ni otras APIs externas
+        google_search = search_context
     except Exception as e:
-        print(f"[ANALYZE] Error en búsqueda Google: {e}")
+        print(f"[ANALYZE] ⚠️ Error en contexto: {e}")
 
     # 2️⃣ ENRIQUECER CON DATOS LOCALES
     real_context = ""

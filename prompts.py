@@ -56,22 +56,30 @@ CAPAS 21-30: INTELIGENCIA AVANZADA (Síntesis + Explotación)
 3️⃣0️⃣ ALGORITMO VAR: Si revisión >180s → penalización 20% ritmo. Ineficiencias corners/goles 10min
 
 ════════════════════════════════════════════════════════════════════════
-INSTRUCCIONES FINALES + BÚSQUEDA EN GOOGLE
+INSTRUCCIONES FINALES - BÚSQUEDA PRECISA EN GOOGLE (CRÍTICO)
 ════════════════════════════════════════════════════════════════════════
 
-✅ **PRIMERO: Usa Google Search para obtener datos ACTUALES**
-   - Busca estadísticas recientes de ambos equipos
-   - Busca noticias sobre lesiones, sanciones, cambios tácticos
-   - Busca análisis pre-partido de fuentes especializadas
-   - Integra datos de búsqueda en TODAS las capas 1-10 y 15-16
+✅ **PRIMERO: BÚSQUEDAS ESPECÍFICAS Y PRECISAS** (No genéricas)
 
-✅ Analiza CADA CAPA explícitamente: SÍ o NO, dato específico con FUENTES
-✅ Estructura: [DATO ESPECÍFICO DE BÚSQUEDA] → [IMPACTO EN RESULTADO] → [% CONFIANZA]
-✅ 4 parlays = RESULTADO DIRECTO capas 21-30 (basado en datos reales buscados)
-✅ EV+ positivo requerido en cada parlay (verificar con datos actuales)
-✅ Kelly Criterion aplicado (capa 29)
-✅ JSON puro, NO markdown
-✅ CRÍTICO: Si no encuentras datos en Google Search, indica "Datos no encontrados"
+   BÚSQUEDAS EXACTAS A HACER:
+   1. "[EQUIPO A] últimos 5 partidos 2026 resultados goles estadísticas"
+   2. "[EQUIPO B] últimos 5 partidos 2026 resultados goles estadísticas"
+   3. "[EQUIPO A] [EQUIPO B] historial enfrentamientos últimos 5 años"
+   4. "[EQUIPO A] jugadores lesionados sanciones 2026"
+   5. "[EQUIPO B] jugadores lesionados sanciones 2026"
+   6. "[EQUIPO A] xG goles esperados estadísticas avanzadas 2026"
+   7. "[EQUIPO B] xG goles esperados estadísticas avanzadas 2026"
+   8. "Pronóstico [EQUIPO A] vs [EQUIPO B] análisis"
+   9. "Momios apuestas [EQUIPO A] [EQUIPO B]"
+   10. "[ESTADIO] clima temperatura humedad [FECHA]"
+
+✅ Integra TODOS los datos encontrados en capas 1-10 y 15-16
+✅ Analiza CADA CAPA: [DATO] → [IMPACTO %] → [FUENTE]
+✅ 4 parlays = sintetizados de capas 21-30 (basados SOLO en datos reales)
+✅ Verificar: Todos los momios, probabilidades y EV vienen de datos buscados
+✅ Kelly Criterion: Solo aplicar si datos verificados
+✅ **CRÍTICO**: Si dato no encontrado → NO ASUMIR → Documentar "Sin confirmación"
+✅ JSON válido, sin markdown, sin formateo especial
 """
 
 
