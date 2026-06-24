@@ -237,12 +237,20 @@ def analyze():
         if not query and not team_a:
             return jsonify({"error": "Escribe el partido a analizar"}), 400
 
+        # Validar GEMINI_API_KEY
+        gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
+        if not gemini_key:
+            return jsonify({
+                "error": "🔑 GEMINI_API_KEY no configurada. Contacta al admin para configurar en Render Dashboard → Settings → Environment Variables"
+            }), 503
+
         from analyzer import analyze_match
         result = analyze_match(team_a, team_b, sport, competition, date_str, context, query=query)
         return jsonify(result)
 
     except Exception as e:
         msg, code = _friendly_error(e)
+        print(f"[ANALYZE ERROR] {e}")
         traceback.print_exc()
         return jsonify({"error": msg}), code
 
