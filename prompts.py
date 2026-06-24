@@ -151,24 +151,43 @@ JSON válido (sin markdown):
 
 
 def build_today_matches_prompt(date_str):
-    return f"""Partidos de fútbol para {date_str}. Incluye: Mundial, Copa América, Champions, La Liga, Premier, Liga MX, etc.
+    return f"""BUSCA TODOS los partidos de fútbol programados PARA {date_str} USANDO GOOGLE SEARCH.
 
-Devuelve SOLO JSON (sin markdown):
+LIGAS A INCLUIR (busca en Google News/ESPN/FotMob):
+- Mundial 2026 / Qualifiers
+- Copa América
+- UEFA Champions League / Europa League
+- La Liga (España)
+- Premier League (Inglaterra)
+- Serie A (Italia)
+- Bundesliga (Alemania)
+- Ligue 1 (Francia)
+- Liga MX (México)
+- MLS (USA)
+- Cualquier otra liga con partidos hoy
+
+INSTRUCCIONES CRÍTICAS:
+1. BUSCA en Google: "{date_str} partidos fútbol" + "football matches today"
+2. INCLUYE hora exacta si está disponible
+3. INCLUYE estadio/ubicación si está disponible
+4. RETORNA SOLO JSON VÁLIDO (sin markdown, sin backticks)
+
+FORMATO JSON EXACTO (si no hay partidos en una liga, NO incluyas esa liga):
 
 {{
   "date": "{date_str}",
   "leagues": [
     {{
-      "league_name": "World Cup",
-      "league_flag": "",
+      "league_name": "Nombre Liga Exacta",
+      "league_flag": "🌍 o bandera",
       "matches": [
         {{
-          "id": "string_unico_sin_espacios",
-          "team_home": "Nombre equipo local",
-          "team_away": "Nombre equipo visitante",
-          "time": "11:00",
-          "hot_note": "Grupo A - AT&T Stadium Dallas" ,
-          "importance": "alta"
+          "id": "id_unico",
+          "team_home": "Equipo Local",
+          "team_away": "Equipo Visitante",
+          "time": "HH:MM (hora local)",
+          "hot_note": "Detalles: stadium, grupo, etc",
+          "importance": "alta/media/baja"
         }}
       ]
     }}
