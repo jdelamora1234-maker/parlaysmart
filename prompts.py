@@ -127,12 +127,10 @@ Genera SOLO los 4 parlays (ultra_conservador, conservador, balanceado, riesgoso)
 }}"""
 
 def build_analysis_prompt(team_a, team_b, sport, competition, date_str, context="", query=""):
-    return f"""ANÁLISIS DE 30 CAPAS: {team_a} vs {team_b}. {competition}.
+    return f"""{team_a} vs {team_b}. {competition}. Análisis 30 capas + 4 parlays.
 {context}
 
-Profundidad: Capas 1-30 (stats, jugadores, tácticas, psicología, fatiga, clima, mercado, modelos, lesiones, árbitro, etc).
-
-JSON con 4 parlays profundos + estadísticas:
+JSON válido (sin markdown):
 {{
   "winner": "team_a/draw/team_b",
   "confidence": 8,
