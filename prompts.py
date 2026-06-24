@@ -100,23 +100,13 @@ Genera SOLO los 4 parlays (ultra_conservador, conservador, balanceado, riesgoso)
 }}"""
 
 def build_analysis_prompt(team_a, team_b, sport, competition, date_str, context="", query=""):
-    if query:
-        header = f"""El usuario quiere analizar: "{query}"
-Identifica automaticamente: equipo local, visitante, deporte, competicion y fecha.
-Aplica las 30 capas de micro-analisis. Usa esos datos en "match_info"."""
-    else:
-        header = f"""PARTIDO: {team_a} vs {team_b}
-DEPORTE: {sport} | COMPETICION: {competition} | FECHA: {date_str}
+    return f"""PARTIDO: {team_a} vs {team_b}
+DEPORTE: {sport} | COMPETICION: {competition}
 {f'CONTEXTO: {context}' if context else ''}
-Aplica las 30 capas de micro-analisis del protocolo."""
-
-    return f"""{header}
 
 INSTRUCCIONES:
-- Analiza estadísticas, tácticas, lesiones, forma reciente
-- Usa los momios reales para detectar value bets
-- Devuelve SOLO JSON válido (sin markdown, sin ```json)
-- JSON DEBE ser válido, sin HTML, sin errores
+- Analiza qué equipo gana, probabilidad, valor, 4 parlays (conservador/balanceado/riesgoso/ultra)
+- Responde SOLO JSON válido, SIN markdown, SIN ```
 
 Responde UNICAMENTE con JSON:
 
