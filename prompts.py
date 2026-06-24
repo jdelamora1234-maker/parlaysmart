@@ -183,13 +183,13 @@ def build_multi_analysis_prompt(matches_list, date_str, raw_queries=None):
         match_lines.append(f"{i}. {qt}")
     matches_text = "\n".join(match_lines)
 
-    return f"""Analiza {n} partidos con metodología de 30 capas. Genera parlays combinados.
+    return f"""Analiza {n} partidos con metodología de 30 capas. Genera parlays combinados + estadísticas.
 
 Partidos:
 {matches_text}
 
 Para cada partido: winner, confidence, predicted_score, stats_home, stats_away, 4 parlays.
-Luego: resumen del día + 4 parlays combinados usando los mejores picks.
+COMBINADO: resumen del día + estadísticas generales (goles totales, posesión media, jugadores clave, lesiones) + 4 parlays combinados.
 
 JSON (sin markdown):
 {{
@@ -214,9 +214,13 @@ JSON (sin markdown):
     }}
   ],
   "stats_combinadas": {{
-    "todos_equipos": "análisis de tendencias combinadas",
-    "jugadores_destacados": ["nombre1", "nombre2", "nombre3"],
-    "factores_clave": "clima, fatiga, motivación, arbitro"
+    "goles_totales_promedio": 2.8,
+    "posesion_promedio": 52,
+    "xg_promedio": 1.6,
+    "jugadores_destacados": ["nombre1 (goals/assists)", "nombre2 (defensa)", "nombre3 (velocidad)"],
+    "lesiones_notables": ["jugador A (team)", "jugador B (team)"],
+    "tendencias_generales": "análisis de qué está pasando hoy en todos los partidos",
+    "factores_clave_dia": "clima, fatiga, motivación, arbitros designados"
   }},
   "parlays_combinados": {{
     "ultra_conservador": {{"picks": [...], "odds": 0.0, "prob": 75, "reason": "máxima seguridad con picks de varios partidos"}},
