@@ -184,13 +184,9 @@ def build_multi_analysis_prompt(matches_list, date_str, raw_queries=None):
         match_lines.append(f"{i}. {qt}")
     matches_text = "\n".join(match_lines)
 
-    return f"""Aplica análisis de 30 capas a {n} partidos.
+    return f"""30 capas: {n} partidos. Winner, confidence, score, stats, 4 parlays c/u. Resumen día + parlays combinados.
 
-Partidos:
 {matches_text}
-
-Por cada partido: winner, confidence, score, stats_home, stats_away, 4 parlays.
-Combinado: resumen 30 capas + estadísticas generales + 4 parlays combinados.
 
 JSON (sin markdown):
 {{

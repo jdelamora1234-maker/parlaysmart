@@ -225,7 +225,7 @@ def fetch_today_matches(date_str):
 
 def analyze_multi_matches(matches_list, date_str):
     prompt = build_multi_analysis_prompt(matches_list, date_str)
-    raw_text = _call_gemini(prompt, max_tokens=12000)
+    raw_text = _call_gemini(prompt, max_tokens=10000)
 
     data = _extract_json(raw_text)
     if not data:
