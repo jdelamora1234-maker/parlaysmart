@@ -268,7 +268,6 @@ def analyze_multi_matches(matches_list, date_str):
             }
         }
 
-    _cache_set(ck, data)
     return data
 
 
