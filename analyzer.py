@@ -107,13 +107,20 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
             resp = requests.post(url, json=payload, timeout=45)
 
             if resp.status_code != 200:
-                raise ValueError(f"HTTP {resp.status_code}: {resp.text[:300]}")
+                error_body = resp.text[:500]
+                print(f"[Gemini] HTTP {resp.status_code}: {error_body}")
+                raise ValueError(f"HTTP {resp.status_code}: {error_body}")
 
-            data = resp.json()
+            try:
+                data = resp.json()
+            except Exception as json_err:
+                print(f"[Gemini] JSON parse error: {resp.text[:300]}")
+                raise ValueError(f"JSON parse error: {resp.text[:300]}")
 
             # Validar estructura de respuesta Gemini
             candidates = data.get("candidates", [])
             if not candidates or len(candidates) == 0:
+                print(f"[Gemini] No candidates. Full response: {data}")
                 raise ValueError("No candidates en respuesta Gemini")
 
             candidate = candidates[0]
@@ -121,11 +128,13 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
             parts = content.get("parts", [])
 
             if not parts or len(parts) == 0:
+                print(f"[Gemini] No parts. Candidate: {candidate}")
                 raise ValueError("No parts en respuesta Gemini")
 
             text = parts[0].get("text", "").strip()
 
             if not text:
+                print(f"[Gemini] Empty text. Parts: {parts}")
                 raise ValueError("Texto vacío en respuesta Gemini")
 
             return text
