@@ -197,8 +197,16 @@ def analyze_match(team_a, team_b, sport, competition, date_str, context="", quer
 
 
 def fetch_today_matches(date_str):
-    # Retornar partidos de ejemplo para que el usuario pueda probar
-    # TODO: Integrar con API real (ESPN, FotMob, etc)
+    # Primero intentar búsqueda en Google
+    from search import search_google_robust
+    try:
+        search_result = search_google_robust(f"partidos fútbol {date_str} 2026 horarios")
+        print(f"[FETCH] Búsqueda en Google: {search_result.get('source', 'N/A')}")
+    except Exception as e:
+        print(f"[FETCH] Búsqueda fallida: {e}")
+
+    # Si no hay resultados de búsqueda, usar partidos de ejemplo
+    # (en el futuro integrar con API real de ESPN/FotMob)
     return {
         "date": date_str,
         "source": "ejemplo",
