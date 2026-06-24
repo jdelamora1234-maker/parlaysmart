@@ -70,7 +70,7 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
     if not gemini_key:
         raise ValueError("GEMINI_API_KEY no está configurada")
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={gemini_key}"
 
     for attempt in range(retry):
         try:
