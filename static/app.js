@@ -1727,7 +1727,11 @@ var mrActiveTab = 0;
 
 function renderMultiResults(data) {
   var matches = data.matches || [];
-  var parlays  = data.parlays_combinados || data.parlays || [];
+
+  // Convertir parlays de objeto a array si es necesario
+  var parlaysObj = data.parlays_combinados || data.parlays || [];
+  var parlays = Array.isArray(parlaysObj) ? parlaysObj : Object.values(parlaysObj || {});
+
   mrActiveTab = 0;
 
   $('mrSubtitle').textContent = matches.length + ' partidos analizados';
