@@ -130,7 +130,26 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
     raise ValueError("Gemini falló después de reintentos")
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
-    # Enriquecer con datos reales de API-Football
+    # 1️⃣ BUSCAR EN GOOGLE CON SERPAPI (datos actuales)
+    from search import get_match_info, get_team_info, get_player_injuries
+
+    google_search = ""
+    try:
+        print(f"[ANALYZE] Buscando en Google: {team_a} vs {team_b}")
+        match_info = get_match_info(team_a, team_b)
+        team_a_info = get_team_info(team_a)
+        team_b_info = get_team_info(team_b)
+        injuries_a = get_player_injuries(team_a)
+        injuries_b = get_player_injuries(team_b)
+
+        google_search = f"""INFORMACIÓN DE GOOGLE (ACTUAL):
+Partido: {team_a} vs {team_b}
+Fuentes: {match_info.get('source', 'N/A')} | {team_a_info.get('source', 'N/A')} | {injuries_a.get('source', 'N/A')}
+"""
+    except Exception as e:
+        print(f"[ANALYZE] Error en búsqueda Google: {e}")
+
+    # 2️⃣ ENRIQUECER CON DATOS LOCALES
     real_context = ""
     if team_a and sport.lower() in ("futbol", "soccer", "football"):
         try:
@@ -138,10 +157,15 @@ def analyze_match(team_a, team_b, sport, competition, date_str, context="", quer
         except Exception:
             pass
 
-    # Agregar momios reales de The Odds API
+    # Agregar momios reales
     real_odds = _get_real_odds(team_a, team_b)
-    full_context = "\n\n".join(filter(None, [real_context, real_odds, context]))
+
+    # 3️⃣ COMBINAR TODO PARA GEMINI
+    full_context = "\n\n".join(filter(None, [google_search, real_context, real_odds, context]))
     prompt = build_analysis_prompt(team_a, team_b, sport, competition, date_str, full_context, query=query)
+
+    # 4️⃣ GEMINI HACE ANÁLISIS PROFUNDO CON DATOS DE GOOGLE
+    print(f"[ANALYZE] Enviando a Gemini con datos de Google para análisis 30 capas...")
     raw_text = _call_gemini(prompt, max_tokens=16000)
 
     data = _extract_json(raw_text)
@@ -264,7 +288,23 @@ def fetch_today_matches(date_str):
 
 
 def analyze_multi_matches(matches_list, date_str):
-    prompt = build_multi_analysis_prompt(matches_list, date_str)
+    # 1️⃣ BUSCAR EN GOOGLE PARA CADA PARTIDO
+    from search import get_match_info
+
+    google_context = "INFORMACIÓN DE GOOGLE (datos actuales para cada partido):\n"
+    for m in matches_list:
+        query_text = m.get("query_text", "")
+        try:
+            info = get_match_info(query_text)
+            if info.get('results'):
+                google_context += f"\n• {query_text}: Fuente {info.get('source', 'N/A')} - {len(info.get('results', []))} resultados"
+        except Exception:
+            pass
+
+    # 2️⃣ GEMINI ANALIZA CON DATOS DE GOOGLE
+    print(f"[MULTI-ANALYZE] Buscando datos de Google para {len(matches_list)} partidos...")
+    prompt = build_multi_analysis_prompt(matches_list, date_str, google_context)
+    print(f"[MULTI-ANALYZE] Enviando a Gemini para análisis 30 capas x {len(matches_list)} partidos...")
     raw_text = _call_gemini(prompt, max_tokens=16000)
 
     data = _extract_json(raw_text)
