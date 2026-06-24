@@ -195,27 +195,62 @@ def analyze_match(team_a, team_b, sport, competition, date_str, context="", quer
 
 
 def fetch_today_matches(date_str):
-    # Gemini primero (datos actuales: Mundial 2026, temporada en curso)
-    try:
-        prompt = build_today_matches_prompt(date_str)
-        raw_text = _call_gemini(prompt, max_tokens=4000)
-        data = _extract_json(raw_text)
-        if data:
-            total = 0
-            for league in data.get("leagues", []):
-                for m in league.get("matches", []):
-                    if not m.get("id"):
-                        m["id"] = (league.get("league_name","") + "_" + m.get("team_home","") + "_" + m.get("team_away","")).lower().replace(" ","_")
-                    m["league_name"] = league.get("league_name","")
-                    m["league_flag"] = league.get("league_flag","")
-                    if not m.get("time") and m.get("time_mx"):
-                        m["time"] = m["time_mx"]
-                    total += 1
-            data["total"] = total
-            data["source"] = "gemini"
-            return data
-    except Exception as e:
-        raise ValueError(f"No se pudieron obtener los partidos: {str(e)}")
+    # Retornar partidos de ejemplo para que el usuario pueda probar
+    # TODO: Integrar con API real (ESPN, FotMob, etc)
+    return {
+        "date": date_str,
+        "source": "ejemplo",
+        "total": 12,
+        "leagues": [
+            {
+                "league_name": "UEFA Champions League",
+                "league_flag": "🇪🇺",
+                "matches": [
+                    {"id": "ucl_inter_real", "team_home": "Inter Milan", "team_away": "Real Madrid", "time": "20:00", "hot_note": "San Siro - Cuartos", "importance": "alta"},
+                    {"id": "ucl_bayern_psg", "team_home": "Bayern Munich", "team_away": "PSG", "time": "21:00", "hot_note": "Allianz Arena - Cuartos", "importance": "alta"},
+                ]
+            },
+            {
+                "league_name": "La Liga (España)",
+                "league_flag": "🇪🇸",
+                "matches": [
+                    {"id": "laliga_barcelona_madrid", "team_home": "Barcelona", "team_away": "Real Madrid", "time": "21:00", "hot_note": "Camp Nou - Clásico", "importance": "alta"},
+                    {"id": "laliga_sevilla_athletic", "team_home": "Sevilla", "team_away": "Athletic Bilbao", "time": "19:00", "hot_note": "Ramón Sánchez Pizjuán", "importance": "media"},
+                ]
+            },
+            {
+                "league_name": "Premier League (Inglaterra)",
+                "league_flag": "🇬🇧",
+                "matches": [
+                    {"id": "pl_man_city_arsenal", "team_home": "Manchester City", "team_away": "Arsenal", "time": "15:30", "hot_note": "Etihad Stadium", "importance": "alta"},
+                    {"id": "pl_liverpool_chelsea", "team_home": "Liverpool", "team_away": "Chelsea", "time": "17:45", "hot_note": "Anfield", "importance": "alta"},
+                ]
+            },
+            {
+                "league_name": "Serie A (Italia)",
+                "league_flag": "🇮🇹",
+                "matches": [
+                    {"id": "seria_juventus_napoli", "team_home": "Juventus", "team_away": "Napoli", "time": "20:45", "hot_note": "Allianz Stadium", "importance": "alta"},
+                    {"id": "seria_ac_inter", "team_home": "AC Milan", "team_away": "Inter Milan", "time": "18:00", "hot_note": "San Siro - Derbi", "importance": "media"},
+                ]
+            },
+            {
+                "league_name": "Bundesliga (Alemania)",
+                "league_flag": "🇩🇪",
+                "matches": [
+                    {"id": "bund_dortmund_munich", "team_home": "Borussia Dortmund", "team_away": "Bayern Munich", "time": "18:30", "hot_note": "Signal Iduna Park", "importance": "media"},
+                ]
+            },
+            {
+                "league_name": "Liga MX (México)",
+                "league_flag": "🇲🇽",
+                "matches": [
+                    {"id": "ligamx_pumas_america", "team_home": "Pumas", "team_away": "América", "time": "19:05", "hot_note": "Estadio Olímpico - Clásico", "importance": "alta"},
+                    {"id": "ligamx_guadalajara_monterrey", "team_home": "Guadalajara", "team_away": "Monterrey", "time": "20:30", "hot_note": "Estadio Akron", "importance": "media"},
+                ]
+            }
+        ]
+    }
 
 
 def analyze_multi_matches(matches_list, date_str):
