@@ -129,6 +129,21 @@ def debug_simple():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/test-gemini-call", methods=["GET"])
+def test_gemini_call():
+    """Test Gemini API call"""
+    try:
+        from analyzer import _call_gemini
+        result = _call_gemini("Responde con JSON: {\"test\": \"ok\"}", max_tokens=100)
+        return jsonify({
+            "status": "OK",
+            "result": result[:300],
+            "result_length": len(result)
+        })
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "ERROR"}), 500
+
+
 @app.route("/today-matches", methods=["GET"])
 @limiter.limit("30 per hour")
 @require_auth
