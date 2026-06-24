@@ -1,6 +1,7 @@
 import os, json, re, hashlib, requests
 from datetime import date as dt_date
-from models import poisson_probabilities, monte_carlo, combine_predictions, elo_expected, prob_to_odds
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from models import poisson_probabilities, monte_carlo, combine_predictions, elo_expected, prob_to_odds, get_advanced_metrics, apply_layer_multipliers
 from prompts import SYSTEM_PROMPT, build_analysis_prompt, build_today_matches_prompt, build_multi_analysis_prompt, build_single_parlay_prompt
 from football_api import get_context_for_match, get_fixtures_for_mx_date, fixtures_to_matches
 
@@ -134,6 +135,19 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
                 time.sleep(wait_time)
 
     raise ValueError("Gemini: Todos los modelos agotados o sobrecargados")
+
+def validate_parlay_correlation(picks):
+    """Valida que los picks no sean contradictorios"""
+    contradictions = {
+        ("gana_local", "gana_visitante"),
+        ("gana_local_1h", "gana_visitante_1h"),
+    }
+    for p1, p2 in contradictions:
+        if p1 in picks and p2 in picks:
+            print(f"[PARLAY] ⚠️ Picks contradictorios: {p1} + {p2}")
+            return False
+    return True
+
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
     # 1️⃣ BUSCAR EN GOOGLE CON SERPAPI (datos actuales)
