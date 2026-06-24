@@ -9,12 +9,13 @@ let currentSport = 'Futbol';
 function setSport(sport) {
   currentSport = sport;
   localStorage.setItem('currentSport', sport);
-  
+
   document.querySelectorAll('.snav').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
-  
+  if (event && event.target) event.target.classList.add('active');
+
   console.log(`✅ Deporte cambió a: ${sport}`);
-  location.reload(); // Recargar para mostrar datos del deporte
+  showNotification(`🏆 Deporte: ${sport}`);
+  // NO RECARGAR - mantener sesión
 }
 
 // ==================== MÚLTIPLES PARTIDOS ====================
