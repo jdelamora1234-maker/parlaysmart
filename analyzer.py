@@ -63,71 +63,77 @@ def _get_real_odds(team_a, team_b):
         return ""
 
 def _call_gemini(prompt, max_tokens=8000, retry=2):
-    """Llamada a Gemini API usando Google Cloud REST API."""
+    """Llamada a Gemini API usando Google Cloud REST API con fallback a modelos alternativos."""
     import time
 
     gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
     if not gemini_key:
         raise ValueError("GEMINI_API_KEY no está configurada")
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={gemini_key}"
+    # Probar modelos en orden de disponibilidad
+    models_to_try = ["gemini-2.0-flash-exp", "gemini-1.5-pro", "gemini-flash-latest"]
 
-    for attempt in range(retry):
-        try:
-            payload = {
-                "contents": [{"parts": [{"text": f"{SYSTEM_PROMPT}\n\n{prompt}"}]}],
-                "generationConfig": {
-                    "maxOutputTokens": min(max_tokens, 8000),
-                    "temperature": 0.3,
-                },
-                "tools": [{"googleSearch": {}}]
-            }
+    for model_choice in models_to_try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_choice}:generateContent?key={gemini_key}"
 
-            resp = requests.post(url, json=payload, timeout=45)
-
-            if resp.status_code != 200:
-                error_body = resp.text[:500]
-                print(f"[Gemini] HTTP {resp.status_code}: {error_body}")
-                raise ValueError(f"HTTP {resp.status_code}: {error_body}")
-
+        for attempt in range(retry):
             try:
-                data = resp.json()
-            except Exception as json_err:
-                print(f"[Gemini] JSON parse error: {resp.text[:300]}")
-                raise ValueError(f"JSON parse error: {resp.text[:300]}")
+                payload = {
+                    "contents": [{"parts": [{"text": f"{SYSTEM_PROMPT}\n\n{prompt}"}]}],
+                    "generationConfig": {
+                        "maxOutputTokens": min(max_tokens, 8000),
+                        "temperature": 0.3,
+                    },
+                    "tools": [{"googleSearch": {}}]
+                }
 
-            # Validar estructura de respuesta Gemini
-            candidates = data.get("candidates", [])
-            if not candidates or len(candidates) == 0:
-                print(f"[Gemini] No candidates. Full response: {data}")
-                raise ValueError("No candidates en respuesta Gemini")
+                resp = requests.post(url, json=payload, timeout=45)
 
-            candidate = candidates[0]
-            content = candidate.get("content", {})
-            parts = content.get("parts", [])
+                if resp.status_code != 200:
+                    error_body = resp.text[:500]
+                    print(f"[Gemini] HTTP {resp.status_code}: {error_body}")
+                    # Si es 503, intentar siguiente modelo
+                    if resp.status_code == 503:
+                        raise ValueError(f"Model overload (503): {model_choice}")
+                    raise ValueError(f"HTTP {resp.status_code}: {error_body}")
 
-            if not parts or len(parts) == 0:
-                print(f"[Gemini] No parts. Candidate: {candidate}")
-                raise ValueError("No parts en respuesta Gemini")
+                try:
+                    data = resp.json()
+                except Exception as json_err:
+                    print(f"[Gemini] JSON parse error: {resp.text[:300]}")
+                    raise ValueError(f"JSON parse error")
 
-            text = parts[0].get("text", "").strip()
+                # Validar estructura de respuesta Gemini
+                candidates = data.get("candidates", [])
+                if not candidates:
+                    raise ValueError("No candidates")
 
-            if not text:
-                print(f"[Gemini] Empty text. Parts: {parts}")
-                raise ValueError("Texto vacío en respuesta Gemini")
+                candidate = candidates[0]
+                content = candidate.get("content", {})
+                parts = content.get("parts", [])
 
-            return text
+                if not parts:
+                    raise ValueError("No parts")
 
-        except Exception as e:
-            error_msg = str(e)[:200]
-            print(f"[Gemini attempt {attempt+1}/{retry}] ERROR: {error_msg}")
-            if attempt == retry - 1:
-                raise ValueError(f"Gemini error: {error_msg}")
-            # En caso de 503 (overload), esperar más tiempo
-            wait_time = 5 if "503" in error_msg or "high demand" in error_msg else 2
-            time.sleep(wait_time)
+                text = parts[0].get("text", "").strip()
 
-    raise ValueError("Gemini falló después de reintentos")
+                if not text:
+                    raise ValueError("Empty text")
+
+                print(f"✅ {model_choice} SUCCESS")
+                return text
+
+            except Exception as e:
+                error_msg = str(e)[:100]
+                print(f"[{model_choice} attempt {attempt+1}/{retry}] ERROR: {error_msg}")
+                if attempt == retry - 1:
+                    # Pasar al siguiente modelo
+                    break
+                # Esperar antes de reintentar
+                wait_time = 5 if "503" in error_msg else 2
+                time.sleep(wait_time)
+
+    raise ValueError("Gemini: Todos los modelos agotados o sobrecargados")
 
 def analyze_match(team_a, team_b, sport, competition, date_str, context="", query=""):
     # 1️⃣ BUSCAR EN GOOGLE CON SERPAPI (datos actuales)
