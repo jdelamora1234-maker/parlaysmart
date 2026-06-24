@@ -44,6 +44,9 @@ limiter = Limiter(
     storage_uri="memory://"
 )
 
+# Reset rate limiter for testing
+limiter.reset()
+
 def require_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -185,7 +188,7 @@ def multi_analyze():
 
 
 @app.route("/analyze", methods=["POST"])
-@limiter.limit("20 per hour")
+@limiter.limit("100 per hour")
 @require_auth
 def analyze():
     try:
