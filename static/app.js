@@ -44,8 +44,15 @@ function doLogin() {
       if (res.ok) {
         hideLogin();
         if (err) err.textContent = '';
+
+        // Guardar estado de admin
+        const isAdmin = res.d.is_admin || false;
+        localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
+        window.isAdmin = isAdmin;
+
+        // Solo mostrar botón Admin si es admin
         var adminBtn = document.getElementById('adminBtn');
-        if (adminBtn) adminBtn.style.display = res.d.is_admin ? 'inline-flex' : 'none';
+        if (adminBtn) adminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
       } else {
         if (err) err.textContent = res.d.error || 'Codigo incorrecto o expirado';
         if (inp) inp.value = '';

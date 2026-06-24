@@ -197,7 +197,16 @@ function openTournamentView() {
 }
 
 function openAdminPanel() {
-  console.log('✅ Abriendo Panel Admin');
+  // Solo admins pueden ver el panel de keys
+  const isAdmin = localStorage.getItem('isAdmin') === 'true' || window.isAdmin === true;
+
+  if (!isAdmin) {
+    showNotification('❌ Solo administradores pueden gestionar keys');
+    console.warn('Acceso denegado: Usuario no es admin');
+    return;
+  }
+
+  console.log('✅ Abriendo Panel de Keys (Admin)');
   const panel = document.getElementById('adminPanel');
   if (panel) panel.style.display = 'flex';
 }
