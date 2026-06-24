@@ -183,18 +183,11 @@ def build_multi_analysis_prompt(matches_list, date_str, raw_queries=None):
         match_lines.append(f"{i}. {qt}")
     matches_text = "\n".join(match_lines)
 
-    return f"""APLICAR ANÁLISIS DE 30 CAPAS COMPLETO a {n} partidos.
+    return f"""Analiza {n} partidos. Por cada: winner, confidence, score predicho, stats, 4 parlays simples.
+Luego: resumen del día + 4 parlays combinados.
 
 Partidos:
 {matches_text}
-
-CAPAS A EVALUAR (OBLIGATORIO):
-1-10: Stats, jugadores, táctica, entrenador, psicología, noticias, redes sociales, familia, fatiga, árbitro
-11-20: Clima, geografía, estadio, importancia, mercado, métricas avanzadas, modelos, variables ocultas, política, rarezas
-21-30: Comportamiento, biometría, finanzas, digital, ineficiencias, value bets, ingeniería inversa, live, stakes, VAR
-
-Por cada partido: winner, confidence, predicted_score, stats_home, stats_away, 4 parlays.
-Combinado: resumen 30 capas del día + stats generales + 4 parlays combinados.
 
 JSON (sin markdown):
 {{
