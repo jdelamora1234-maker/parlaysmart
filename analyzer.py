@@ -11,6 +11,12 @@ from ml_weights import optimizer
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "").strip()
 
+# Validar que GEMINI_API_KEY esté configurada
+if not GEMINI_API_KEY:
+    print("❌ ERROR CRÍTICO: GEMINI_API_KEY no está configurada")
+    print("   Debe estar en Render Dashboard → Settings → Environment Variables")
+    # No fallar aquí, solo avisar. El error ocurrirá cuando se intente usar
+
 def _get_real_odds(team_a, team_b):
     """Obtiene momios reales de The Odds API para un partido."""
     try:

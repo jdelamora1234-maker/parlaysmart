@@ -7,6 +7,8 @@ import os, traceback
 
 def _friendly_error(e):
     s = str(e)
+    if "GEMINI_API_KEY" in s or "no api key" in s.lower():
+        return "🔑 GEMINI_API_KEY no configurada. Contacta al admin para configurar en Render Dashboard.", 503
     if "429" in s or "RESOURCE_EXHAUSTED" in s:
         return "El servicio de IA esta temporalmente sin cupo. Intenta de nuevo despues.", 503
     if "quota" in s.lower():
@@ -27,6 +29,13 @@ if os.path.exists(_env_file):
         if line and not line.startswith('#') and '=' in line:
             k, v = line.split('=', 1)
             os.environ.setdefault(k.strip(), v.strip())
+
+# Verificar que GEMINI_API_KEY está configurada
+_gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
+if not _gemini_key:
+    print("❌ ADVERTENCIA: GEMINI_API_KEY no está configurada")
+    print("   Render Dashboard → Settings → Environment Variables")
+    print("   Agregar: GEMINI_API_KEY = <tu_clave>")
 
 app = Flask(__name__, static_folder="static")
 app.secret_key = os.environ.get("SECRET_KEY", "parlaysmart-secret-2025")
