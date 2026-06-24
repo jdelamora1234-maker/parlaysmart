@@ -70,8 +70,8 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
     if not gemini_key:
         raise ValueError("GEMINI_API_KEY no está configurada")
 
-    # Probar modelos en orden de disponibilidad
-    models_to_try = ["gemini-2.0-flash-exp", "gemini-1.5-pro", "gemini-flash-latest"]
+    # Probar modelos en orden de disponibilidad (Junio 2025)
+    models_to_try = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-001"]
 
     for model_choice in models_to_try:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_choice}:generateContent?key={gemini_key}"

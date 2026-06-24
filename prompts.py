@@ -56,15 +56,22 @@ CAPAS 21-30: INTELIGENCIA AVANZADA (Síntesis + Explotación)
 3️⃣0️⃣ ALGORITMO VAR: Si revisión >180s → penalización 20% ritmo. Ineficiencias corners/goles 10min
 
 ════════════════════════════════════════════════════════════════════════
-INSTRUCCIONES FINALES
+INSTRUCCIONES FINALES + BÚSQUEDA EN GOOGLE
 ════════════════════════════════════════════════════════════════════════
 
-✅ Analiza CADA CAPA explícitamente: SÍ o NO, dato específico
-✅ Estructura: [DATO ESPECÍFICO] → [IMPACTO EN RESULTADO] → [% CONFIANZA]
-✅ 4 parlays = RESULTADO DIRECTO capas 21-30 (no independientes)
-✅ EV+ positivo requerido en cada parlay
+✅ **PRIMERO: Usa Google Search para obtener datos ACTUALES**
+   - Busca estadísticas recientes de ambos equipos
+   - Busca noticias sobre lesiones, sanciones, cambios tácticos
+   - Busca análisis pre-partido de fuentes especializadas
+   - Integra datos de búsqueda en TODAS las capas 1-10 y 15-16
+
+✅ Analiza CADA CAPA explícitamente: SÍ o NO, dato específico con FUENTES
+✅ Estructura: [DATO ESPECÍFICO DE BÚSQUEDA] → [IMPACTO EN RESULTADO] → [% CONFIANZA]
+✅ 4 parlays = RESULTADO DIRECTO capas 21-30 (basado en datos reales buscados)
+✅ EV+ positivo requerido en cada parlay (verificar con datos actuales)
 ✅ Kelly Criterion aplicado (capa 29)
 ✅ JSON puro, NO markdown
+✅ CRÍTICO: Si no encuentras datos en Google Search, indica "Datos no encontrados"
 """
 
 
