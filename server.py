@@ -8,12 +8,16 @@ import os, traceback
 def _friendly_error(e):
     s = str(e)
     if "429" in s or "RESOURCE_EXHAUSTED" in s:
-        return "El servicio de IA esta temporalmente sin cupo. Intenta de nuevo despues de las 2 AM hora Mexico.", 503
+        return "El servicio de IA esta temporalmente sin cupo. Intenta de nuevo despues.", 503
     if "quota" in s.lower():
         return "Limite de uso alcanzado. Intenta mas tarde.", 503
-    if "Gemini" in s or "HTML" in s or "<" in s:
-        return "Error del servicio de IA. Intenta de nuevo en unos segundos.", 503
-    return s, 500
+    if "Gemini" in s or "HTML" in s or "<" in s or "doctype" in s.lower() or "ldoctype" in s.lower():
+        return "No se pudo obtener datos para este partido. Intenta con otro partido o mas tarde.", 503
+    if "no candidates" in s.lower() or "no parts" in s.lower() or "empty" in s.lower():
+        return "El analisis no pudo completarse. Intenta de nuevo.", 503
+    if "json" in s.lower() or "parse" in s.lower():
+        return "Error procesando la respuesta. Intenta de nuevo.", 500
+    return "Error inesperado. Intenta de nuevo mas tarde.", 500
 
 # Cargar .env si existe
 _env_file = os.path.join(os.path.dirname(__file__), '.env')
