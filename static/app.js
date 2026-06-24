@@ -1776,8 +1776,8 @@ function buildMrMatchCard(m) {
   var pois = mm.poisson  || {};
   var fp   = m.final_prediction || {};
   var mkts = m.markets || {};
-  var sh   = m.stats_home || {};
-  var sa   = m.stats_away || {};
+  var sh   = m.stats_home || m.team_a_stats || {};
+  var sa   = m.stats_away || m.team_b_stats || {};
   var h2h  = m.head_to_head || {};
   var pickColor = m.recommended_pick === 'H' ? 'var(--green)' : m.recommended_pick === 'A' ? 'var(--blue)' : 'var(--gold)';
 
