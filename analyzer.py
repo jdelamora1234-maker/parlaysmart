@@ -363,6 +363,11 @@ def _extract_json(text):
     """Extrae JSON robusto de respuestas de Gemini."""
     text = text.strip()
 
+    # Paso 0: Remover backticks de markdown agresivamente
+    text = re.sub(r'^```(?:json)?\s*', '', text)  # Remover backticks iniciales
+    text = re.sub(r'\s*```$', '', text)  # Remover backticks finales
+    text = text.strip()
+
     # Intento 1: JSON directo
     try:
         return json.loads(text)
