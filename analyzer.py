@@ -254,7 +254,7 @@ Busca y extrae estos datos específicos:
 
     # 4️⃣ GEMINI HACE ANÁLISIS PROFUNDO CON DATOS DE GOOGLE
     print(f"[ANALYZE] Enviando a Gemini con datos de Google para análisis 30 capas...")
-    raw_text = _call_gemini(prompt, max_tokens=8000  # Reduced to prevent timeouts and overload errors)
+    raw_text = _call_gemini(prompt, max_tokens=12000  # Increased to include all 30-layer analysis + stats + models)
 
     data = _extract_json(raw_text)
     if not data:
@@ -459,7 +459,7 @@ def analyze_multi_matches(matches_list, date_str):
     print(f"[MULTI-ANALYZE] Buscando datos de Google para {len(matches_list)} partidos...")
     prompt = build_multi_analysis_prompt(matches_list, date_str, google_context)
     print(f"[MULTI-ANALYZE] Enviando a Gemini para análisis 30 capas x {len(matches_list)} partidos...")
-    raw_text = _call_gemini(prompt, max_tokens=8000  # Reduced to prevent timeouts and overload errors)
+    raw_text = _call_gemini(prompt, max_tokens=12000  # Increased to include all 30-layer analysis + stats + models)
 
     data = _extract_json(raw_text)
     if not data:
