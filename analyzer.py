@@ -79,7 +79,8 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
                 "generationConfig": {
                     "maxOutputTokens": min(max_tokens, 8000),
                     "temperature": 0.3,
-                }
+                },
+                "tools": [{"google_search": {}}]
             }
 
             resp = requests.post(url, json=payload, timeout=45)
