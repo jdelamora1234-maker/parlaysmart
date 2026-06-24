@@ -76,18 +76,60 @@ INSTRUCCIONES FINALES + BÚSQUEDA EN GOOGLE
 
 
 def build_single_parlay_prompt(parlay_type, match_analysis_json):
-    """Genera UN SOLO parlay específico basándose en el análisis previo."""
-    descriptions = {
-        "ultra_conservador": "1 pick ultra-seguro, probabilidad ~75%, momios ~1.65, EV+ confirmado",
-        "conservador": "2 picks de alta probabilidad, probabilidad ~55%, momios combinados ~3.0, ambos EV+",
-        "balanceado": "3 picks con valor explorado, probabilidad ~38%, momios combinados ~6.0, todos EV+",
-        "riesgoso": "4 picks de alto valor, probabilidad ~18%, momios combinados ~16.5, máxima ganancia potencial"
+    """Genera UN SOLO parlay ESPECIALIZADO por estrategia basándose en el análisis previo."""
+    strategies = {
+        "ultra_conservador": {
+            "description": "1 pick ultra-seguro, probabilidad ~75%, momios ~1.65",
+            "focus": "Evento más probable: Gana equipo casa OR BTTS (si ambos anotan >60%)",
+            "exploit": "Público infravalúa favoritos locales",
+            "kelly_fraction": 0.25,
+            "markets": ["Money Line", "Over/Under", "BTTS"],
+            "instruction": "Busca la pick ÚNICA con >75% probabilidad. NO combinar eventos. Kelly 25%"
+        },
+
+        "conservador": {
+            "description": "2 picks defensivas, probabilidad ~55%, momios combinados ~3.0",
+            "focus": "Combinación defensiva: Gana casa + Under 2.5 (defensas fuertes)",
+            "exploit": "Playdoit infravalúa defensa colectiva en rivales locales",
+            "kelly_fraction": 0.50,
+            "markets": ["Ganador", "Goles totales", "Línea negativa"],
+            "instruction": "Combina eventos NEGATIVAMENTE CORRELACIONADOS (baja goles = baja emoción = resultados). Kelly 50%"
+        },
+
+        "balanceado": {
+            "description": "3 picks con valor explorado, probabilidad ~38%, momios ~6.0",
+            "focus": "Correlación cruzada: Goles + Tarjetas + Corners (PPDA vs rival)",
+            "exploit": "Playdoit usa promedios estáticos, no ajusta por PPDA (presión defensiva)",
+            "kelly_fraction": 0.75,
+            "markets": ["Corners", "Tarjetas", "Goles equipo", "Líneas Over/Under"],
+            "instruction": "Cruza 3 variables independientes. Si rival tiene PPDA alta (presión baja) = más corners. Kelly 75%"
+        },
+
+        "riesgoso": {
+            "description": "4 picks alto valor, probabilidad ~18%, momios ~16.5",
+            "focus": "Ineficiencias mercado: VAR delay, live betting retraso, arbitraje",
+            "exploit": "API cuotas vivo vs Pinnacle tienen retraso >3 segundos = oportunidad",
+            "kelly_fraction": 1.0,
+            "markets": ["Props minutales", "Gol anota jugador", "Tarjeta jugador específico", "Primera tarjeta"],
+            "instruction": "Busca ineficiencias: evento raro (minuto exacto gol, jugador específico). API delay = oportunidad. Kelly 100%"
+        }
     }
 
-    desc = descriptions.get(parlay_type, "")
+    strategy = strategies.get(parlay_type, {})
+    desc = strategy.get("description", "")
+    focus = strategy.get("focus", "")
+    exploit = strategy.get("exploit", "")
+    instruction = strategy.get("instruction", "")
+
     return f"""Basándote EXACTAMENTE en este análisis: {match_analysis_json}
 
-Genera SOLO el parlay "{parlay_type}" ({desc}) en JSON válido:
+ESTRATEGIA ESPECIALIZADA "{parlay_type.upper()}":
+- Descripción: {desc}
+- Focus: {focus}
+- Exploit: {exploit}
+- INSTRUCCIÓN CRÍTICA: {instruction}
+
+Genera SOLO el parlay "{parlay_type}" en JSON válido:
 
 {{
   "parlay": {{

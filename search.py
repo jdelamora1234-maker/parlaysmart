@@ -130,21 +130,52 @@ def _get_fallback_data(query):
 
 
 def get_team_info(team_name):
-    """Obtiene información de un equipo buscando en Google"""
-    query = f"{team_name} fútbol stats últimos resultados"
-    return search_google_robust(query)
+    """Obtiene información de un equipo - BÚSQUEDAS SEGMENTADAS"""
+    print(f"[SEARCH] Buscando información segmentada de {team_name}")
+
+    searches = {
+        "stats_recent": search_google_robust(f"{team_name} últimos 5 partidos 2026 goles xG estadísticas"),
+        "advanced_stats": search_google_robust(f"{team_name} xA big chances PPDA 2026 fútbol avanzado"),
+        "form": search_google_robust(f"{team_name} racha actual forma últimas 10 partidos"),
+        "possession": search_google_robust(f"{team_name} posesión promedio tiki taka 2026"),
+        "defense": search_google_robust(f"{team_name} defensa goles concedidos xGA prevención")
+    }
+
+    return searches
 
 
 def get_player_injuries(team_name):
-    """Obtiene información de lesiones de un equipo"""
-    query = f"{team_name} jugadores lesionados ausentes 2026"
-    return search_google_robust(query)
+    """Obtiene información de lesiones - BÚSQUEDAS ESPECÍFICAS"""
+    print(f"[SEARCH] Buscando lesiones de {team_name}")
+
+    searches = {
+        "injuries": search_google_robust(f"{team_name} jugadores lesionados ausentes 2026"),
+        "key_players": search_google_robust(f"{team_name} jugadores clave estrellas 2026 goles asists"),
+        "suspensions": search_google_robust(f"{team_name} sanciones tarjetas suspensiones 2026"),
+        "fatigue": search_google_robust(f"{team_name} fatiga cansancio partidos últimos 21 días")
+    }
+
+    return searches
 
 
 def get_match_info(team_a, team_b):
-    """Obtiene información de un partido específico"""
-    query = f"{team_a} vs {team_b} predicción análisis"
-    return search_google_robust(query)
+    """Obtiene información de un partido - BÚSQUEDAS EXHAUSTIVAS × 10"""
+    print(f"[SEARCH] Buscando información completa: {team_a} vs {team_b}")
+
+    searches = {
+        "h2h": search_google_robust(f"{team_a} vs {team_b} historial h2h últimos 10 años"),
+        "tactics_a": search_google_robust(f"{team_a} alineación formación táctica 2026"),
+        "tactics_b": search_google_robust(f"{team_b} alineación formación táctica 2026"),
+        "referee": search_google_robust(f"árbitro {team_a} vs {team_b} tarjetas corners 2026"),
+        "stadium": search_google_robust(f"estadio {team_a} clima temperatura humedad"),
+        "news": search_google_robust(f"{team_a} {team_b} noticias últimas 48 horas 2026"),
+        "psychology": search_google_robust(f"{team_a} vestuario motivación moral 2026"),
+        "market": search_google_robust(f"{team_a} vs {team_b} momios apuestas inteligente"),
+        "travel": search_google_robust(f"{team_b} viaje {team_a} km jet lag distancia"),
+        "context": search_google_robust(f"{team_a} vs {team_b} importancia torneo ranking")
+    }
+
+    return searches
 
 
 if __name__ == "__main__":
