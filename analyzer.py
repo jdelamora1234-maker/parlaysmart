@@ -92,13 +92,13 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
                 payload = {
                     "contents": [{"parts": [{"text": f"{SYSTEM_PROMPT}\n\n{prompt}"}]}],
                     "generationConfig": {
-                        "maxOutputTokens": min(max_tokens, 8000),
+                        "maxOutputTokens": max_tokens,
                         "temperature": 0.3,
                     },
                     "tools": [{"googleSearch": {}}]
                 }
 
-                resp = requests.post(url, json=payload, timeout=60)  # Increased from 45 to 60 seconds
+                resp = requests.post(url, json=payload, timeout=90)  # Increased from 45 to 60 seconds
 
                 if resp.status_code != 200:
                     error_body = resp.text[:500]
@@ -254,7 +254,7 @@ Busca y extrae estos datos específicos:
 
     # 4️⃣ GEMINI HACE ANÁLISIS PROFUNDO CON DATOS DE GOOGLE
     print(f"[ANALYZE] Enviando a Gemini con datos de Google para análisis 30 capas...")
-    raw_text = _call_gemini(prompt, max_tokens=12000  # Increased to include all 30-layer analysis + stats + models)
+    raw_text = _call_gemini(prompt, max_tokens=16000)  # Increased to include all 30-layer analysis + stats + models + parlays
 
     data = _extract_json(raw_text)
     if not data:
