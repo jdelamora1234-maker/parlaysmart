@@ -475,7 +475,7 @@ def analyze_multi_matches(matches_list, date_str):
     print(f"[MULTI-ANALYZE] Buscando datos de Google para {len(matches_list)} partidos...")
     prompt = build_multi_analysis_prompt(matches_list, date_str, google_context)
     print(f"[MULTI-ANALYZE] Enviando a Gemini para análisis 30 capas x {len(matches_list)} partidos...")
-    raw_text = _call_gemini(prompt, max_tokens=12000  # Increased to include all 30-layer analysis + stats + models)
+    raw_text = _call_gemini(prompt, max_tokens=16000)  # Aumentado para análisis 30 capas completo
 
     data = _extract_json(raw_text)
     if not data:
