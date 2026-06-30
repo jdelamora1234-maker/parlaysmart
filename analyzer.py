@@ -73,7 +73,7 @@ def _get_real_odds(team_a, team_b):
     except Exception:
         return ""
 
-def _call_gemini(prompt, max_tokens=8000, retry=2):
+def _call_gemini(prompt, max_tokens=2000, retry=2):
     """Llamada a Gemini API usando Google Cloud REST API con fallback a modelos alternativos."""
     import time
 
@@ -224,7 +224,7 @@ def analyze_match(team_a, team_b, sport, competition, date_str, context="", quer
     montecarlo_results = mc_agent.run_simulations(
         team_a_xg=team_a_xg_estimated,
         team_b_xg=team_b_xg_estimated,
-        iterations=50000
+        iterations=500
     )
     montecarlo_odds_text = mc_agent.get_true_odds_for_prompt(montecarlo_results)
 
@@ -273,7 +273,7 @@ Busca y extrae estos datos específicos:
 
     # 4️⃣ GEMINI HACE ANÁLISIS PROFUNDO CON DATOS DE GOOGLE
     print(f"[ANALYZE] Enviando a Gemini con datos de Google para análisis 30 capas...")
-    raw_text = _call_gemini(prompt, max_tokens=8000)  # Balance: análisis sin OOM
+    raw_text = _call_gemini(prompt, max_tokens=2000)  # Balance: análisis sin OOM
 
     data = _extract_json(raw_text)
     if not data:
@@ -478,7 +478,7 @@ def analyze_multi_matches(matches_list, date_str):
     print(f"[MULTI-ANALYZE] Buscando datos de Google para {len(matches_list)} partidos...")
     prompt = build_multi_analysis_prompt(matches_list, date_str, google_context)
     print(f"[MULTI-ANALYZE] Enviando a Gemini para análisis 30 capas x {len(matches_list)} partidos...")
-    raw_text = _call_gemini(prompt, max_tokens=8000)  # Reducido para evitar OOM en Render
+    raw_text = _call_gemini(prompt, max_tokens=2000)  # Reducido para evitar OOM en Render
 
     data = _extract_json(raw_text)
     if not data:
