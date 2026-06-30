@@ -15,7 +15,7 @@ class MonteCarloAgent:
         if seed:
             np.random.seed(seed)
 
-    def run_simulations(self, team_a_xg, team_b_xg, iterations=20000):
+    def run_simulations(self, team_a_xg, team_b_xg, iterations=5000):
         """
         Ejecuta 50,000 iteraciones reales de Montecarlo
 
