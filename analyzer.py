@@ -78,7 +78,10 @@ def _create_fallback_analysis(team_a, team_b, montecarlo_results):
     mc = montecarlo_results
     odds_1x2 = mc.get('true_odds_1x2', {})
 
-    winner = max(odds_1x2.items(), key=lambda x: x[1])[0] if odds_1x2 else '1'
+    try:
+        winner = max(odds_1x2.items(), key=lambda x: x[1])[0] if odds_1x2 else '1'
+    except:
+        winner = '1'
     winner_name = {'1': team_a, 'X': 'Empate', '2': team_b}.get(winner, team_a)
 
     return {
