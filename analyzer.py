@@ -91,7 +91,10 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
         for attempt in range(retry):
             try:
                 payload = {
-                    "contents": [{"parts": [{"text": f"{SYSTEM_PROMPT}\n\n{prompt}"}]}],
+                    "systemInstruction": {
+                        "parts": [{"text": SYSTEM_PROMPT}]
+                    },
+                    "contents": [{"parts": [{"text": prompt}]}],
                     "generationConfig": {
                         "maxOutputTokens": max_tokens,
                         "temperature": 0.3,
