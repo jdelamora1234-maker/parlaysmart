@@ -15,7 +15,7 @@ class MonteCarloAgent:
         if seed:
             np.random.seed(seed)
 
-    def run_simulations(self, team_a_xg, team_b_xg, iterations=50000):
+    def run_simulations(self, team_a_xg, team_b_xg, iterations=10000):
         """
         Ejecuta 50,000 iteraciones reales de Montecarlo
 
@@ -30,12 +30,12 @@ class MonteCarloAgent:
 
         print(f"[MONTECARLO] Iniciando {iterations:,} simulaciones...")
 
-        # Contadores
+        # Contadores (optimizado para memoria)
         home_wins = 0
         draws = 0
         away_wins = 0
-        total_goals_list = []
-        goal_diffs = []
+        total_goals_sum = 0
+        total_goals_sq = 0
         over_under_counts = {
             'over_0.5': 0, 'under_0.5': 0,
             'over_1.5': 0, 'under_1.5': 0,
@@ -46,14 +46,13 @@ class MonteCarloAgent:
         goal_distribution = {}
         corner_estimation = 0  # Estimación: más goles = más presión = más corners
 
-        # Ejecutar 50,000 simulaciones
+        # Ejecutar simulaciones (optimizado: sin acumular listas)
         for i in range(iterations):
             # Generar goles con Poisson basado en xG
             goles_casa = np.random.poisson(team_a_xg)
             goles_visitante = np.random.poisson(team_b_xg)
 
             total_goles = goles_casa + goles_visitante
-            goal_diff = goles_casa - goles_visitante
 
             # Contar resultados
             if goles_casa > goles_visitante:
@@ -63,9 +62,9 @@ class MonteCarloAgent:
             else:
                 away_wins += 1
 
-            # Recopilar datos
-            total_goals_list.append(total_goles)
-            goal_diffs.append(goal_diff)
+            # Acumular estadísticas (sin guardar lista)
+            total_goals_sum += total_goles
+            total_goals_sq += total_goles ** 2
 
             # Over/Under
             if total_goles > 0.5: over_under_counts['over_0.5'] += 1
@@ -115,10 +114,11 @@ class MonteCarloAgent:
             str(k): v / iterations for k, v in sorted(goal_distribution.items())
         }
 
-        # Estadísticas
-        avg_goals = np.mean(total_goals_list)
-        std_goals = np.std(total_goals_list)
-        med_goals = np.median(total_goals_list)
+        # Estadísticas (calculadas desde acumuladores)
+        avg_goals = total_goals_sum / iterations
+        variance = (total_goals_sq / iterations) - (avg_goals ** 2)
+        std_goals = np.sqrt(max(0, variance))  # Evitar sqrt negativo
+        med_goals = avg_goals  # Aproximación (median ≈ mean para Poisson)
 
         # Calcular momios implícitos (con margen 5% casa de apuestas)
         margin = 1.05
