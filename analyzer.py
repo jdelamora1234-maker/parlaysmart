@@ -81,9 +81,9 @@ def _call_gemini(prompt, max_tokens=8000, retry=2):
     if not gemini_key:
         raise ValueError("GEMINI_API_KEY no está configurada")
 
-    # Probar modelos en orden de disponibilidad y estabilidad (Junio 2025)
-    # gemini-2.0-flash es más estable que 2.5-flash que está muy sobrecargado
-    models_to_try = ["gemini-2.0-flash", "gemini-2.0-flash-001", "gemini-2.5-flash", "gemini-2.5-pro"]
+    # Probar modelos en orden de disponibilidad (Junio 2026)
+    # gemini-2.5-flash es el más estable actualmente
+    models_to_try = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-1.5-flash", "gemini-1.5-pro"]
 
     for model_choice in models_to_try:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_choice}:generateContent?key={gemini_key}"
