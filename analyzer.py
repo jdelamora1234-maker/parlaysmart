@@ -267,8 +267,8 @@ Busca y extrae estos datos específicos:
     # Agregar momios reales
     real_odds = _get_real_odds(team_a, team_b)
 
-    # 3️⃣ COMBINAR TODO PARA GEMINI (INCLUYENDO MONTECARLO RESULTS)
-    full_context = "\n\n".join(filter(None, [montecarlo_odds_text, google_search, real_context, real_odds, context]))
+    # 3️⃣ COMBINAR TODO PARA GEMINI (sin montecarlo_odds_text para reducir tamaño)
+    full_context = "\n\n".join(filter(None, [google_search, real_context, real_odds, context]))
     prompt = build_analysis_prompt(team_a, team_b, sport, competition, date_str, full_context, query=query)
 
     # 4️⃣ GEMINI HACE ANÁLISIS PROFUNDO CON DATOS DE GOOGLE
