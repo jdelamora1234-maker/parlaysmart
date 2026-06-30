@@ -73,6 +73,36 @@ def _get_real_odds(team_a, team_b):
     except Exception:
         return ""
 
+def _create_fallback_analysis(team_a, team_b, montecarlo_results):
+    """Crea análisis básico si Gemini falla"""
+    mc = montecarlo_results
+    odds_1x2 = mc.get('true_odds_1x2', {})
+
+    winner = max(odds_1x2.items(), key=lambda x: x[1])[0] if odds_1x2 else '1'
+    winner_name = {'1': team_a, 'X': 'Empate', '2': team_b}.get(winner, team_a)
+
+    return {
+        'match_info': {'team_a': team_a, 'team_b': team_b},
+        'final_prediction': {
+            'winner': winner_name,
+            'confidence_score': 5,
+            'summary': f'Análisis Montecarlo: {team_a} vs {team_b}'
+        },
+        'math_models': {
+            'poisson': odds_1x2,
+            'monte_carlo': mc
+        },
+        'parlays': {
+            'ultra_conservative': {'combined_odds': 1.5, 'win_probability': 0.5},
+            'conservative': {'combined_odds': 2.0, 'win_probability': 0.4},
+            'balanced': {'combined_odds': 3.0, 'win_probability': 0.3},
+            'riesgoso': {'combined_odds': 5.0, 'win_probability': 0.2}
+        },
+        'stats_team_a': {},
+        'stats_team_b': {},
+        'context': 'Análisis Montecarlo fallido en Gemini'
+    }
+
 def _call_gemini(prompt, max_tokens=2000, retry=2):
     """Llamada a Gemini API usando Google Cloud REST API con fallback a modelos alternativos."""
     import time
@@ -273,12 +303,15 @@ Busca y extrae estos datos específicos:
 
     # 4️⃣ GEMINI HACE ANÁLISIS PROFUNDO CON DATOS DE GOOGLE
     print(f"[ANALYZE] Enviando a Gemini con datos de Google para análisis 30 capas...")
-    raw_text = _call_gemini(prompt, max_tokens=2000)  # Balance: análisis sin OOM
-
-    data = _extract_json(raw_text)
-    if not data:
-        print(f"[ERROR] JSON inválido. Raw text inicio: {raw_text[:200]}")
-        raise ValueError(f"No se pudo extraer JSON del analisis")
+    try:
+        raw_text = _call_gemini(prompt, max_tokens=2000)
+        data = _extract_json(raw_text)
+        if not data:
+            print(f"[WARNING] JSON inválido, usando fallback Montecarlo")
+            data = _create_fallback_analysis(team_a, team_b, montecarlo_results)
+    except Exception as e:
+        print(f"[WARNING] Gemini falló ({e}), usando fallback Montecarlo")
+        data = _create_fallback_analysis(team_a, team_b, montecarlo_results)
 
     # GENERAR 4 PARLAYS SEPARADOS (uno para cada nivel de riesgo)
     analysis_json = json.dumps(data, ensure_ascii=False)[:5000]
