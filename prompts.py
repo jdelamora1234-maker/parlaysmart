@@ -105,7 +105,7 @@ RETORNA JSON EXACTAMENTE CON ESTA ESTRUCTURA:
   "alertas_live": "Triggers para mercados en vivo a minuto 75+"
 }
 
-VALIDACIÓN INICIAL: Confirma asimilación correcta de v4.0 describiendo cómo detectas sesgo aficionado."""
+INSTRUCCIÓN CRÍTICA: Retorna SOLO el JSON válido anterior. NO incluyas validación, confirmación, explicación, o texto adicional. SOLO JSON."""
 
 # Resto de funciones - MANTENER EXACTAMENTE IGUAL
 def build_single_parlay_prompt(parlay_type, match_analysis_json):
