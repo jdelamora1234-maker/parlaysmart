@@ -4,13 +4,20 @@ Motor Montecarlo Vectorizado + Clean Architecture
 """
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 import numpy as np
 import gc
 from datetime import datetime
 from typing import Optional
+import os
 
 app = FastAPI(title="ParlaySmart v2026.X", version="2.0.0")
+
+# Servir archivos estáticos
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 class MonteCarloVectorized:
     """Montecarlo 100% vectorizado - SIN bucles for"""
@@ -82,18 +89,13 @@ class KellyOptimizer:
 
 @app.get("/")
 def root():
-    """Health check"""
-    return {
-        "status": "PARLAYSMART v2026.X READY",
-        "version": "2.0.0",
-        "architecture": "FastAPI + Vectorized Montecarlo",
-        "endpoints": [
-            "POST /analyze - Analizar partido",
-            "GET /health - Estado del sistema"
-        ]
-    }
+    """Sirve la UI"""
+    index_path = os.path.join(static_dir, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path, media_type="text/html")
+    return {"status": "UI not found, use /health for API status"}
 
-@app.post("/analyze")
+@app.get("/analyze")
 def analyze(team_a: str, team_b: str, team_a_xg: float = 1.5, team_b_xg: float = 1.2):
     """Analiza un partido con Montecarlo vectorizado"""
     try:
